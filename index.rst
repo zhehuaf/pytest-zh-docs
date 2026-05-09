@@ -8,10 +8,20 @@
 
 .. note::
 
-   本文档基于 **pytest 9.0.3** 英文文档翻译，部分页面可能存在未翻译完整的情况。
-   如在 ``how-to/assert`` 中缺少 "Returning non-None value in test functions" 一节，
-   ``how-to/fixtures`` 缺少 "Use fixtures in classes and modules" 等部分，
-   ``explanation/fixtures`` 约有 64% 内容尚未翻译。
+   本文档基于 **pytest 9.0.3** 英文文档翻译。经逐文件行数对比，翻译完整度如下：
+
+   **完全未翻译**（英文原版）：``changelog``, ``reference/reference``（API 参考, 3663行）,
+   ``deprecations``（1513行）, ``builtin``（279行）, ``backwards-compatibility``,
+   ``explanation/ci``, ``explanation/flaky``, ``how-to/bash-completion``,
+   ``reference/exit-codes``, ``talks``, 及全部 ``announce/``（版本发布公告）。
+
+   **0% 翻译**：``reference/plugin_list``（52行 vs 英文15472行）。
+
+   **部分翻译**：``how-to/monkeypatch``（11%）、``how-to/cache``（23%）、
+   ``how-to/plugins``（33%）、``explanation/fixtures``（36%）、
+   ``how-to/failures``（51%）、``how-to/output``（59%）、
+   ``how-to/writing_plugins``（71%）等。
+
    欢迎通过 https://github.com/pytest-dev/pytest 贡献翻译。
 
 pytest: 帮助你编写更好的程序
