@@ -8,14 +8,13 @@
 
 .. note::
 
-   本文档基于 **pytest 9.0.3** 英文文档翻译。
+   本文档基于 pytest 9.0.3 英文文档翻译，仍有以下内容未完成翻译：
 
-   **翻译完成度：**
-   - ✅ 所有 ``how-to/``、``explanation/``、``example/`` 目录下的文档已全部翻译完成
-   - ✅ ``builtin``、``backwards-compatibility``、``reference/exit-codes``、``talks``、``adopt``、``license`` 等参考文档已翻译完成
-   - ⏳ ``changelog``（11796行）、``deprecations``（1513行）、``reference/reference``（API 参考, 3663行）等仍有待翻译
-   - ⏳ ``reference/plugin_list``（自动生成的插件列表）待翻译
-   - ⏳ ``announce/``（版本发布公告）待翻译
+   - changelog (11796 行)
+   - deprecations (1513 行)
+   - reference/reference (API 参考, 3663 行)
+   - reference/plugin_list (自动生成的插件列表)
+   - announce/ (全部版本发布公告)
 
    欢迎通过 https://github.com/pytest-dev/pytest 贡献翻译。
 
