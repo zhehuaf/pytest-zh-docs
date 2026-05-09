@@ -6,6 +6,14 @@
 
     另请参见 :doc:`以往的演讲和博客文章 <talks>`
 
+.. note::
+
+   本文档基于 **pytest 9.0.3** 英文文档翻译，部分页面可能存在未翻译完整的情况。
+   如在 ``how-to/assert`` 中缺少 "Returning non-None value in test functions" 一节，
+   ``how-to/fixtures`` 缺少 "Use fixtures in classes and modules" 等部分，
+   ``explanation/fixtures`` 约有 64% 内容尚未翻译。
+   欢迎通过 https://github.com/pytest-dev/pytest 贡献翻译。
+
 pytest: 帮助你编写更好的程序
 =======================================
 
