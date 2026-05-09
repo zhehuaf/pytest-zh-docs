@@ -1,56 +1,356 @@
-.. _reporting:
+.. _how-to-manage-output:
 
-如何定制测试报告
-================================
+Managing pytest's output
+=========================
 
-.. _showing-durations:
+.. _how-to-modifying-python-tb-printing:
 
-显示每个测试用例的执行时间
+修改 Python 回溯打印
 --------------------------------------------------
+
+修改回溯打印的示例：
+
+.. code-block:: bash
+
+    pytest --showlocals     # 在回溯中显示局部变量
+    pytest -l               # 显示局部变量（快捷方式）
+    pytest --no-showlocals  # 隐藏局部变量（如果 addopts 启用了它们）
+
+    pytest --capture=fd  # 默认，在文件描述符级别捕获
+    pytest --capture=sys # 在 sys 级别捕获
+    pytest --capture=no  # 不捕获
+    pytest -s            # 不捕获（快捷方式）
+    pytest --capture=tee-sys # 捕获到日志，但同时也输出到 sys 级别流
+
+    pytest --tb=auto    #（默认）第一个和最后一个条目使用 'long' 回溯，其他条目使用 'short' 风格
+    pytest --tb=long    # 详尽、信息丰富的回溯格式
+    pytest --tb=short   # 较短的回溯格式
+    pytest --tb=line    # 每个失败只有一行
+    pytest --tb=native  # Python 标准库格式
+    pytest --tb=no      # 完全没有回溯
+
+:option:`--full-trace` 导致在错误时打印非常长的跟踪（比 :option:`--tb=long` 更长）。它还确保在 **KeyboardInterrupt**（Ctrl+C）时打印堆栈跟踪。
+如果测试花费的时间太长，你使用 Ctrl+C 中断它们以找出测试 *挂起* 的位置，这非常有用。默认情况下不会显示任何输出（因为 pytest 捕获了 KeyboardInterrupt）。通过使用此选项，你可以确保显示跟踪。
+
+
+详细程度
+--------------------------------------------------
+
+修改打印详细程度的示例：
+
+.. code-block:: bash
+
+    pytest --quiet          # 安静 - 较少详细 - 模式
+    pytest -q               # 安静 - 较少详细 - 模式（快捷方式）
+    pytest -v               # 增加详细程度，显示单个测试名称
+    pytest -vv              # 更详细，显示测试输出的更多细节
+    pytest -vvv             # 非标准，但在某些设置中可能用于甚至更多的细节
+
+:option:`-v` 标志控制 pytest 输出在各个方面（测试会话进度、测试失败时的断言细节、带有 :option:`--fixtures` 的 fixtures 细节等）的详细程度。
 
 .. regendoc:wipe
 
-要获得每个最慢测试用例的列表，请使用 ``--durations=N`` 选项：
+考虑这个简单的文件：
+
+.. code-block:: python
+
+    # test_verbosity_example.py 的内容
+    def test_ok():
+        pass
+
+
+    def test_words_fail():
+        fruits1 = ["banana", "apple", "grapes", "melon", "kiwi"]
+        fruits2 = ["banana", "apple", "orange", "melon", "kiwi"]
+        assert fruits1 == fruits2
+
+
+    def test_numbers_fail():
+        number_to_text1 = {str(x): x for x in range(5)}
+        number_to_text2 = {str(x * 10): x * 10 for x in range(5)}
+        assert number_to_text1 == number_to_text2
+
+
+    def test_long_text_fail():
+        long_text = "Lorem ipsum dolor sit amet " * 10
+        assert "hello world" in long_text
+
+正常执行 pytest 会给我们这个输出（我们跳过头部以专注于其余部分）：
 
 .. code-block:: pytest
 
-    $ pytest --durations=3
+    $ pytest --no-header
     =========================== test session starts ============================
-    platform linux -- Python 3.x.y, pytest-9.x.y, pluggy-1.x.y
-    rootdir: /home/sweet/project
-    collected 3 items
+    collected 4 items
 
-    test_slow.py ...                                                     [100%]
+    test_verbosity_example.py .FFF                                       [100%]
 
-    ========================= slowest 3 durations =============================
-    0.01s call     test_slow.py::test_1
-    0.00s call     test_slow.py::test_2
-    0.00s call     test_slow.py::test_3
-    =========================== 3 passed in 0.12s =============================
+    ================================= FAILURES =================================
+    _____________________________ test_words_fail ______________________________
 
-默认情况下，pytest 将显示 ``.00s`` 持续时间，对于非常慢的测试（通常表示 IO 操作），这将正确显示为 ``15.28s``。
+        def test_words_fail():
+            fruits1 = ["banana", "apple", "grapes", "melon", "kiwi"]
+            fruits2 = ["banana", "apple", "orange", "melon", "kiwi"]
+    >       assert fruits1 == fruits2
+    E       AssertionError: assert ['banana', 'a...elon', 'kiwi'] == ['banana', 'a...elon', 'kiwi']
+    E
+    E         At index 2 diff: 'grapes' != 'orange'
+    E         Use -v to get more diff
 
-你可以传递 ``--durations-min=3.5`` 来隐藏低于特定值（在本例中为 3.5 秒）的持续时间。``--durations`` 默认值为 ``N=10``。
+    test_verbosity_example.py:8: AssertionError
+    ____________________________ test_numbers_fail _____________________________
 
-::
+        def test_numbers_fail():
+            number_to_text1 = {str(x): x for x in range(5)}
+            number_to_text2 = {str(x * 10): x * 10 for x in range(5)}
+    >       assert number_to_text1 == number_to_text2
+    E       AssertionError: assert {'0': 0, '1':..., '3': 3, ...} == {'0': 0, '10'...'30': 30, ...}
+    E
+    E         Omitting 1 identical items, use -vv to show
+    E         Left contains 4 more items:
+    E         {'1': 1, '2': 2, '3': 3, '4': 4}
+    E         Right contains 4 more items:
+    E         {'10': 10, '20': 20, '30': 30, '40': 40}
+    E         Use -v to get more diff
 
-    ========================= slowest 3 durations =============================
-    15.28s call     test_slow.py::test_1
-    5.42s call      test_slow.py::test_2
-    0.32s call      test_slow.py::test_3
-    =========================== 3 passed in 15.32s =============================
+    test_verbosity_example.py:14: AssertionError
+    ___________________________ test_long_text_fail ____________________________
 
-或者传递 ``--durations=-1`` 来显示所有测试的持续时间，顺序从慢到快。
+        def test_long_text_fail():
+            long_text = "Lorem ipsum dolor sit amet " * 10
+    >       assert "hello world" in long_text
+    E       AssertionError: assert 'hello world' in 'Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ips... sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet '
 
-默认情况下，此功能将排序并显示 ``call`` 持续时间，但也可以使用 ``--durations-order={duration_type}`` 选项按其他持续时间排序，包括 ``call``、``setup``、``teardown`` 或这三者的组合（例如 ``setup teardown call``）。
+    test_verbosity_example.py:19: AssertionError
+    ========================= short test summary info ==========================
+    FAILED test_verbosity_example.py::test_words_fail - AssertionError: asser...
+    FAILED test_verbosity_example.py::test_numbers_fail - AssertionError: ass...
+    FAILED test_verbosity_example.py::test_long_text_fail - AssertionError: a...
+    ======================= 3 failed, 1 passed in 0.12s ========================
 
-注意，无论使用哪个持续时间顺序，这都会显示每个测试的这三个持续时间，但测试会话摘要中只包含排序依据的那个。
+注意：
 
-还要注意，排序是按阶段时长完成的，因此如果你选择 ``setup``，时长为 10 秒的 fixture（影响三个测试）将排在前面，因为它在三个测试中的总时长为 30 秒，而 3 秒的测试在单独一行上。
+* 文件中的每个测试在输出中显示为单个字符：``.`` 表示通过，``F`` 表示失败。
+* ``test_words_fail`` 失败，我们看到一个简短摘要，指示两个列表的索引 2 不同。
+* ``test_numbers_fail`` 失败，我们看到字典项的左右差异摘要。相同的项被省略。
+* ``test_long_text_fail`` 失败，``in`` 语句的右侧使用 ``...`` 截断，因为它比内部阈值（当前为 240 个字符）长。
 
-还要注意，这对 ``-vv`` 或 ``--no-header`` 或 ``-q`` 输出没有影响，因为实际测试中很少需要按持续时间排序。
+现在我们可以增加 pytest 的详细程度：
 
-.. _pytest.detailed_failed_tests_usage:
+.. code-block:: pytest
+
+    $ pytest --no-header -v
+    =========================== test session starts ============================
+    collecting ... collected 4 items
+
+    test_verbosity_example.py::test_ok PASSED                            [ 25%]
+    test_verbosity_example.py::test_words_fail FAILED                    [ 50%]
+    test_verbosity_example.py::test_numbers_fail FAILED                  [ 75%]
+    test_verbosity_example.py::test_long_text_fail FAILED                [100%]
+
+    ================================= FAILURES =================================
+    _____________________________ test_words_fail ______________________________
+
+        def test_words_fail():
+            fruits1 = ["banana", "apple", "grapes", "melon", "kiwi"]
+            fruits2 = ["banana", "apple", "orange", "melon", "kiwi"]
+    >       assert fruits1 == fruits2
+    E       AssertionError: assert ['banana', 'a...elon', 'kiwi'] == ['banana', 'a...elon', 'kiwi']
+    E
+    E         At index 2 diff: 'grapes' != 'orange'
+    E
+    E         Full diff:
+    E           [
+    E               'banana',
+    E               'apple',...
+    E
+    E         ...Full output truncated (7 lines hidden), use '-vv' to show
+
+    test_verbosity_example.py:8: AssertionError
+    ____________________________ test_numbers_fail _____________________________
+
+        def test_numbers_fail():
+            number_to_text1 = {str(x): x for x in range(5)}
+            number_to_text2 = {str(x * 10): x * 10 for x in range(5)}
+    >       assert number_to_text1 == number_to_text2
+    E       AssertionError: assert {'0': 0, '1':..., '3': 3, ...} == {'0': 0, '10'...'30': 30, ...}
+    E
+    E         Omitting 1 identical items, use -vv to show
+    E         Left contains 4 more items:
+    E         {'1': 1, '2': 2, '3': 3, '4': 4}
+    E         Right contains 4 more items:
+    E         {'10': 10, '20': 20, '30': 30, '40': 40}
+    E         ...
+    E
+    E         ...Full output truncated (16 lines hidden), use '-vv' to show
+
+    test_verbosity_example.py:14: AssertionError
+    ___________________________ test_long_text_fail ____________________________
+
+        def test_long_text_fail():
+            long_text = "Lorem ipsum dolor sit amet " * 10
+    >       assert "hello world" in long_text
+    E       AssertionError: assert 'hello world' in 'Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet '
+
+    test_verbosity_example.py:19: AssertionError
+    ========================= short test summary info ==========================
+    FAILED test_verbosity_example.py::test_words_fail - AssertionError: asser...
+    FAILED test_verbosity_example.py::test_numbers_fail - AssertionError: ass...
+    FAILED test_verbosity_example.py::test_long_text_fail - AssertionError: a...
+    ======================= 3 failed, 1 passed in 0.12s ========================
+
+现在注意：
+
+* 文件中的每个测试在输出中都有自己的行。
+* ``test_words_fail`` 现在完整显示了两个失败的列表，以及哪个索引不同。
+* ``test_numbers_fail`` 现在显示了两个字典的文本差异（截断）。
+* ``test_long_text_fail`` 不再截断 ``in`` 语句的右侧，因为截断的内部阈值现在更大（当前为 2400 个字符）。
+
+现在如果我们进一步增加详细程度：
+
+.. code-block:: pytest
+
+    $ pytest --no-header -vv
+    =========================== test session starts ============================
+    collecting ... collected 4 items
+
+    test_verbosity_example.py::test_ok PASSED                            [ 25%]
+    test_verbosity_example.py::test_words_fail FAILED                    [ 50%]
+    test_verbosity_example.py::test_numbers_fail FAILED                  [ 75%]
+    test_verbosity_example.py::test_long_text_fail FAILED                [100%]
+
+    ================================= FAILURES =================================
+    _____________________________ test_words_fail ______________________________
+
+        def test_words_fail():
+            fruits1 = ["banana", "apple", "grapes", "melon", "kiwi"]
+            fruits2 = ["banana", "apple", "orange", "melon", "kiwi"]
+    >       assert fruits1 == fruits2
+    E       AssertionError: assert ['banana', 'apple', 'grapes', 'melon', 'kiwi'] == ['banana', 'apple', 'orange', 'melon', 'kiwi']
+    E
+    E         At index 2 diff: 'grapes' != 'orange'
+    E
+    E         Full diff:
+    E           [
+    E               'banana',
+    E               'apple',
+    E         -     'orange',
+    E         ?      ^  ^^
+    E         +     'grapes',
+    E         ?      ^  ^ +
+    E               'melon',
+    E               'kiwi',
+    E           ]
+
+    test_verbosity_example.py:8: AssertionError
+    ____________________________ test_numbers_fail _____________________________
+
+        def test_numbers_fail():
+            number_to_text1 = {str(x): x for x in range(5)}
+            number_to_text2 = {str(x * 10): x * 10 for x in range(5)}
+    >       assert number_to_text1 == number_to_text2
+    E       AssertionError: assert {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4} == {'0': 0, '10': 10, '20': 20, '30': 30, '40': 40}
+    E
+    E         Common items:
+    E         {'0': 0}
+    E         Left contains 4 more items:
+    E         {'1': 1, '2': 2, '3': 3, '4': 4}
+    E         Right contains 4 more items:
+    E         {'10': 10, '20': 20, '30': 30, '40': 40}
+    E
+    E         Full diff:
+    E           {
+    E               '0': 0,
+    E         -     '10': 10,
+    E         ?       -    -
+    E         +     '1': 1,
+    E         -     '20': 20,
+    E         ?       -    -
+    E         +     '2': 2,
+    E         -     '30': 30,
+    E         ?       -    -
+    E         +     '3': 3,
+    E         -     '40': 40,
+    E         ?       -    -
+    E         +     '4': 4,
+    E           }
+
+    test_verbosity_example.py:14: AssertionError
+    ___________________________ test_long_text_fail ____________________________
+
+        def test_long_text_fail():
+            long_text = "Lorem ipsum dolor sit amet " * 10
+    >       assert "hello world" in long_text
+    E       AssertionError: assert 'hello world' in 'Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet '
+
+    test_verbosity_example.py:19: AssertionError
+    ========================= short test summary info ==========================
+    FAILED test_verbosity_example.py::test_words_fail - AssertionError: assert ['banana', 'apple', 'grapes', 'melon', 'kiwi'] == ['banana', 'apple', 'orange', 'melon', 'kiwi']
+
+      At index 2 diff: 'grapes' != 'orange'
+
+      Full diff:
+        [
+            'banana',
+            'apple',
+      -     'orange',
+      ?      ^  ^^
+      +     'grapes',
+      ?      ^  ^ +
+            'melon',
+            'kiwi',
+        ]
+    FAILED test_verbosity_example.py::test_numbers_fail - AssertionError: assert {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4} == {'0': 0, '10': 10, '20': 20, '30': 30, '40': 40}
+
+      Common items:
+      {'0': 0}
+      Left contains 4 more items:
+      {'1': 1, '2': 2, '3': 3, '4': 4}
+      Right contains 4 more items:
+      {'10': 10, '20': 20, '30': 30, '40': 40}
+
+      Full diff:
+        {
+            '0': 0,
+      -     '10': 10,
+      ?       -    -
+      +     '1': 1,
+      -     '20': 20,
+      ?       -    -
+      +     '2': 2,
+      -     '30': 30,
+      ?       -    -
+      +     '3': 3,
+      -     '40': 40,
+      ?       -    -
+      +     '4': 4,
+        }
+    FAILED test_verbosity_example.py::test_long_text_fail - AssertionError: assert 'hello world' in 'Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet '
+    ======================= 3 failed, 1 passed in 0.12s ========================
+
+现在注意：
+
+* 文件中的每个测试在输出中都有自己的行。
+* ``test_words_fail`` 在这种情况下给出了与之前相同的输出。
+* ``test_numbers_fail`` 现在显示了两个字典的完整文本差异。
+* ``test_long_text_fail`` 也像以前一样不截断右侧，但现在 pytest 根本不会截断任何文本，无论其大小如何。
+
+以上是详细程度如何影响正常测试会话输出的示例，但详细程度也用于其他情况，例如如果你使用 ``pytest --fixtures -v``，你还会看到以 ``_`` 开头的 fixtures。
+
+使用更高的详细程度级别（``-vvv``、``-vvvv``、...）是支持的，但目前对 pytest 本身没有影响，但是某些插件可能会利用更高的详细程度。
+
+.. _`pytest.fine_grained_verbosity`:
+
+细粒度详细程度
+~~~~~~~~~~~~~~~~~~~~~~
+
+除了指定应用程序范围的详细程度级别外，还可以独立控制特定方面。这是通过在配置文件中为输出的特定方面设置详细程度级别来完成的。
+
+:confval:`verbosity_assertions`: 控制执行 pytest 时断言输出的详细程度。使用值 ``2`` 运行 ``pytest --no-header`` 将产生与上一个示例相同的输出，但文件中的每个测试在输出中显示为单个字符。
+
+:confval:`verbosity_test_cases`: 控制执行 pytest 时测试执行输出的详细程度。使用值 ``2`` 运行 ``pytest --no-header`` 将产生与第一个详细程度示例相同的输出，但文件中的每个测试在输出中都有自己的行。
+
+.. _`pytest.detailed_failed_tests_usage`:
 
 生成详细的摘要报告
 --------------------------------------------------
@@ -374,7 +674,7 @@ record_property
 
 
 record_xml_attribute
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
 
 要向 testcase 元素添加额外的 xml 属性，你可以使用 ``record_xml_attribute`` fixture。这也可以用于覆盖现有值：
 

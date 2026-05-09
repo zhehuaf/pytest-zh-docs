@@ -1,64 +1,95 @@
 
 .. _`python collection`:
 
-Python 测试收集
+更改标准 (Python) 测试发现
 =================================================
 
+在收集期间忽略路径
+-----------------------------------
 
-标准发现机制
-----------------------------------------------------
+你可以通过在 CLI 上传递 :option:`--ignore=path` 选项来轻松忽略某些测试目录和模块。``pytest`` 支持多个 ``--ignore`` 选项。示例：
 
-pytest 默认实现以下标准 Python 测试发现：
+.. code-block:: text
 
-* 如果未指定参数，则从 :confval:`testpaths` （如果已配置）或当前目录开始收集。或者，命令行参数可用于目录、文件名或节点 ID。
-* 递归到目录中，除非它们匹配 :confval:`norecursedirs`。
-* 在这些目录中，搜索 ``test_*.py`` 或 ``*_test.py`` 文件，按文件导入名称排序。
-* 从这些文件中收集测试项目：
+    tests/
+    |-- example
+    |   |-- test_example_01.py
+    |   |-- test_example_02.py
+    |   '-- test_example_03.py
+    |-- foobar
+    |   |-- test_foobar_01.py
+    |   |-- test_foobar_02.py
+    |   '-- test_foobar_03.py
+    '-- hello
+        '-- world
+            |-- test_world_01.py
+            |-- test_world_02.py
+            '-- test_world_03.py
 
-  * ``test`` 前缀在类外部或内部的函数或方法
-  * ``Test`` 前缀在类内部的测试类（无 ``__init__`` 方法）
-
-示例会话
---------------------------------------
-
-这是一个简单的示例会话，使用上述约定来收集测试。
-
-.. code-block:: python
-
-    # pythoncollection.py 的内容
-
-    def test_function():
-        pass
-
-
-    class TestClass:
-        def test_method(self):
-            pass
-
-
-        def test_anothermethod(self):
-            pass
-
-我们可以使用 ``--collect-only`` 选项来演示：
+现在，如果你使用 ``--ignore=tests/foobar/test_foobar_03.py --ignore=tests/hello/`` 调用 ``pytest``，你会看到 ``pytest`` 只收集不匹配指定模式的测试模块：
 
 .. code-block:: pytest
 
-    . $ pytest --collect-only pythoncollection.py
     =========================== test session starts ============================
-    platform linux -- Python 3.x.y, pytest-9.x.y, pluggy-1.x.y
-    rootdir: /home/sweet/project
-    configfile: pytest.toml
-    collected 3 items
+    platform linux -- Python 3.x.y, pytest-5.x.y, py-1.x.y, pluggy-0.x.y
+    rootdir: $REGENDOC_TMPDIR, inifile:
+    collected 5 items
 
-    <Dir pythoncollection.rst-214>
-      <Dir CWD>
-        <Module pythoncollection.py>
-          <Function test_function>
-          <Class TestClass>
-            <Function test_method>
-            <Function test_anothermethod>
+    tests/example/test_example_01.py .                                   [ 20%]
+    tests/example/test_example_02.py .                                   [ 40%]
+    tests/example/test_example_03.py .                                   [ 60%]
+    tests/foobar/test_foobar_01.py .                                     [ 80%]
+    tests/foobar/test_foobar_02.py .                                     [100%]
 
-    ======================== 3 tests collected in 0.12s ========================
+    ========================= 5 passed in 0.02 seconds =========================
+
+:option:`--ignore-glob` 选项允许基于 Unix shell 风格的通配符忽略测试文件路径。如果你想排除以 ``_01.py`` 结尾的测试模块，使用 :option:`--ignore-glob='*_01.py'` 执行 ``pytest``。
+
+在收集期间取消选择测试
+-------------------------------------
+
+可以在收集期间通过传递 :option:`--deselect=item` 选项来单独取消选择测试。例如，假设 ``tests/foobar/test_foobar_01.py`` 包含 ``test_a`` 和 ``test_b``。你可以通过使用 ``--deselect=tests/foobar/test_foobar_01.py::test_a`` 调用 ``pytest`` 来运行 ``tests/`` 内*除了* ``tests/foobar/test_foobar_01.py::test_a`` 之外的所有测试。``pytest`` 支持多个 ``--deselect`` 选项。
+
+.. _duplicate-paths:
+
+保留从命令行指定的重复路径
+----------------------------------------------------
+
+``pytest`` 的默认行为是忽略从命令行指定的重复路径。示例：
+
+.. code-block:: pytest
+
+    pytest path_a path_a
+
+    ...
+    collected 1 item
+    ...
+
+只收集一次测试。
+
+要收集重复的测试，请在 CLI 上使用 :option:`--keep-duplicates` 选项。示例：
+
+.. code-block:: pytest
+
+    pytest --keep-duplicates path_a path_a
+
+    ...
+    collected 2 items
+    ...
+
+
+更改目录递归
+-----------------------------------------------------
+
+你可以在配置文件中设置 :confval:`norecursedirs` 选项：
+
+.. code-block:: toml
+
+    # pytest.toml 的内容
+    [pytest]
+    norecursedirs = [".svn", "_build", "tmp*"]
+
+这将告诉 ``pytest`` 不要递归进入典型的 subversion 或 sphinx-build 目录或任何以 ``tmp`` 为前缀的目录。
 
 .. _`change naming conventions`:
 

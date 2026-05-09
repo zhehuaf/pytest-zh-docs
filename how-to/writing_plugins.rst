@@ -1,12 +1,49 @@
 .. _plugins:
+.. _`writing-plugins`:
 
-如何编写插件
-==================
+Writing plugins
+===============
 
-本节包含编写你自己的 pytest 插件的信息。
+在自己的项目中实现 `本地 conftest 插件`_ 或 `可通过 pip 安装的插件`_ 很容易，这些插件可以在许多项目中使用，包括第三方项目。如果你只想使用插件而不编写插件，请参阅 :ref:`using plugins`。
 
-插件包含一个或多个钩子函数。编写钩子 :ref:`解释 <writinghooks>` 了编写钩子函数的基础知识，包括它们的布局和参数。
+一个插件包含一个或多个钩子函数。:ref:`编写钩子 <writinghooks>` 解释了如何自己编写钩子函数的基础知识和细节。
+``pytest`` 通过调用以下插件的 :ref:`良好指定的钩子 <hook-reference>` 来实现配置、收集、运行和报告的所有方面：
 
+* 内置插件：从 pytest 的内部 ``_pytest`` 目录加载。
+
+* :ref:`外部插件 <extplugins>`：通过其打包元数据中的 :ref:`entry points <pip-installable plugins>` 发现已安装的第三方模块
+
+* `conftest.py 插件`_：在测试目录中自动发现的模块
+
+原则上，每个钩子调用都是一个 ``1:N`` Python 函数调用，其中 ``N`` 是给定规范的已注册实现函数的数量。
+所有规范和实现都遵循 ``pytest_`` 前缀命名约定，使它们易于区分和查找。
+
+.. _`pluginorder`:
+
+工具启动时的插件发现顺序
+--------------------------------------
+
+``pytest`` 在工具启动时按以下方式加载插件模块：
+
+1. 扫描命令行的 ``-p no:name`` 选项，并*阻止*该插件被加载（即使内置插件也可以这样被阻止）。这发生在正常的命令行解析之前。
+
+2. 加载所有内置插件。
+
+3. 扫描命令行的 ``-p name`` 选项并加载指定的插件。这发生在正常的命令行解析之前。
+
+4. 加载所有通过已安装的第三方包 :ref:`entry points <pip-installable plugins>` 注册的插件，除非设置了 :envvar:`PYTEST_DISABLE_PLUGIN_AUTOLOAD` 环境变量。
+
+5. 加载所有通过 :envvar:`PYTEST_PLUGINS` 环境变量指定的插件。
+
+6. 加载所有"初始" :file:`conftest.py` 文件：
+
+   - 确定测试路径：在命令行上指定，否则如果定义了 :confval:`testpaths` 并从 rootdir 运行，则使用它，否则使用当前目录
+   - 对于每个测试路径，加载相对于测试路径目录部分的 ``conftest.py`` 和 ``test*/conftest.py``（如果存在）。在加载 ``conftest.py`` 文件之前，加载其所有父目录中的 ``conftest.py`` 文件。在加载 ``conftest.py`` 文件之后，递归加载其 :globalvar:`pytest_plugins` 变量中指定的所有插件（如果存在）。
+
+
+.. _`conftest.py plugins`:
+.. _`localplugin`:
+.. _`local conftest plugins`:
 
 conftest.py：本地目录插件
 ----------------------------

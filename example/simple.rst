@@ -192,124 +192,378 @@
             type=type_checker,
         )
 
+这就完成了基本模式。然而，通常更希望的是在测试之外处理命令行选项，并传入不同或更复杂的对象。
 
-向测试函数动态添加命令行选项
--------------------------------------------------------------
+动态添加命令行选项
+--------------------------------------------------------------
 
 .. regendoc:wipe
 
-假设我们想为测试指定一个命令行选项，并在测试模块中使用它：
+通过 :confval:`addopts` 你可以静态地为你的项目添加命令行选项。你也可以在命令行参数被处理之前动态修改它们：
 
 .. code-block:: python
 
-    # test_dynamic.py 的内容
-
-    def test_dynopt(request):
-        assert request.config.getoption("--cmdopt") == "type1"
-
-然后我们可以在包含此测试的目录的 conftest 文件中动态添加选项：
-
-.. code-block:: python
-
-    # conftest.py 的内容
-
-    import pytest
+    # 可安装的外部插件
+    import sys
 
 
-    def pytest_addoption(parser, pluginmanager):
-        parser.addoption(
-            "--cmdopt", action="store", default="type1", help="我的选项: type1 或 type2"
-        )
+    def pytest_load_initial_conftests(args):
+        if "xdist" in sys.modules:  # pytest-xdist 插件
+            import multiprocessing
 
+            num = max(multiprocessing.cpu_count() / 2, 1)
+            args[:] = ["-n", str(num)] + args
 
-运行此测试时，如果未传递选项，测试将失败，如果传递了选项，测试将通过：
+如果你安装了 :pypi:`xdist plugin <pytest-xdist>`，现在你将始终使用接近 CPU 数量的子进程数来执行测试运行。在空目录中使用上述 conftest.py 运行：
 
 .. code-block:: pytest
 
-    $ pytest -q test_dynamic.py
+    $ pytest
+    =========================== test session starts ============================
+    platform linux -- Python 3.x.y, pytest-9.x.y, pluggy-1.x.y
+    rootdir: /home/sweet/project
+    collected 0 items
+
+    ========================== no tests ran in 0.12s ===========================
+
+.. _`excontrolskip`:
+
+根据命令行选项控制跳过测试
+--------------------------------------------------------------
+
+.. regendoc:wipe
+
+这是一个 ``conftest.py`` 文件，添加了 ``--runslow`` 命令行选项来控制跳过 ``pytest.mark.slow`` 标记的测试：
+
+.. code-block:: python
+
+    # conftest.py 的内容
+
+    import pytest
+
+
+    def pytest_addoption(parser):
+        parser.addoption(
+            "--runslow", action="store_true", default=False, help="run slow tests"
+        )
+
+
+    def pytest_configure(config):
+        config.addinivalue_line("markers", "slow: mark test as slow to run")
+
+
+    def pytest_collection_modifyitems(config, items):
+        if config.getoption("--runslow"):
+            # --runslow 在 CLI 中给出：不要跳过慢速测试
+            return
+        skip_slow = pytest.mark.skip(reason="need --runslow option to run")
+        for item in items:
+            if "slow" in item.keywords:
+                item.add_marker(skip_slow)
+
+我们现在可以编写这样的测试模块：
+
+.. code-block:: python
+
+    # test_module.py 的内容
+    import pytest
+
+
+    def test_func_fast():
+        pass
+
+
+    @pytest.mark.slow
+    def test_func_slow():
+        pass
+
+运行时将看到被跳过的 "slow" 测试：
+
+.. code-block:: pytest
+
+    $ pytest -rs    # "-rs" 表示报告小 's' 的详细信息
+    =========================== test session starts ============================
+    platform linux -- Python 3.x.y, pytest-9.x.y, pluggy-1.x.y
+    rootdir: /home/sweet/project
+    collected 2 items
+
+    test_module.py .s                                                    [100%]
+
+    ========================= short test summary info ==========================
+    SKIPPED [1] test_module.py:8: need --runslow option to run
+    ======================= 1 passed, 1 skipped in 0.12s =======================
+
+或运行包括 ``slow`` 标记的测试：
+
+.. code-block:: pytest
+
+    $ pytest --runslow
+    =========================== test session starts ============================
+    platform linux -- Python 3.x.y, pytest-9.x.y, pluggy-1.x.y
+    rootdir: /home/sweet/project
+    collected 2 items
+
+    test_module.py ..                                                    [100%]
+
+    ============================ 2 passed in 0.12s =============================
+
+.. _`__tracebackhide__`:
+
+编写良好集成的断言辅助函数
+-----------------------------------------
+
+.. regendoc:wipe
+
+如果你有一个从测试中调用的测试辅助函数，你可以使用 ``pytest.fail`` 标记器以特定消息使测试失败。如果你在辅助函数的某处设置 ``__tracebackhide__`` 选项，测试支持函数将不会出现在回溯中。示例：
+
+.. code-block:: python
+
+    # test_checkconfig.py 的内容
+    import pytest
+
+
+    def checkconfig(x):
+        __tracebackhide__ = True
+        if not hasattr(x, "config"):
+            pytest.fail(f"not configured: {x}")
+
+
+    def test_something():
+        checkconfig(42)
+
+``__tracebackhide__`` 设置影响 ``pytest`` 显示回溯的方式：除非指定了 :option:`--full-trace` 命令行选项，否则 ``checkconfig`` 函数将不会显示。让我们运行这个小函数：
+
+.. code-block:: pytest
+
+    $ pytest -q test_checkconfig.py
     F                                                                    [100%]
     ================================= FAILURES =================================
-    ________________________________ test_dynopt _______________________________
+    ______________________________ test_something ______________________________
 
-    request = <FixtureRequest for <Function test_dynopt>>
+        def test_something():
+    >       checkconfig(42)
+    E       Failed: not configured: 42
 
-        def test_dynopt(request):
-    >       assert request.config.getoption("--cmdopt") == "type1"
-    E       AssertionError: assert None == 'type1'
-    E        +  where None = <bound method Argument.getoption of _Group(<bound method Argument.getoption...>, [<_OptionContainer 0xdeadbeef0001>], dest=None, title=None)>('--cmdopt')
-    E        +    where <bound method Argument.getoption of _Group(<bound method Argument.getoption...>, [<_OptionContainer 0xdeadbeef0001>], dest=None, title=None)> = <bound method Argument.getoption of _Group(<bound method Argument.getoption... [<_OptionContainer 0xdeadbeef0001>], dest=None, title=None)> (('--cmdopt',),)
-    E        +      where <bound method Argument.getoption of _Group(<bound method Argument.getoption... [<_OptionContainer 0xdeadbeef0001>], dest=None, title=None)> = <bound method Argument.getoption of _Group(<bound method Argument.getoption... [<_OptionContainer 0xdeadbeef0001>], dest=None, title=None)> (<bound method Argument.getoption of _Group(<bound method Argument.getoption... [<_OptionContainer 0xdeadbeef0001>], dest=None, title=None)> ('--cmdopt',),)
-    E        +        where <bound method Argument.getoption of _Group(<bound method Argument.getoption... [<_OptionContainer 0xdeadbeef0001>], dest=None, title=None)> = <bound method Argument.getoption of _Group(<bound method Argument.getoption... [<_OptionContainer 0xdeadbeef0001>], dest=None, title=None)> (<bound method Argument.getoption of _Group(<bound method Argument.getoption... [<_OptionContainer 0xdeadbeef0001>], dest=None, title=None)> (), <bound method Argument.getoption of _Group(<bound method Argument.getoption... [<_OptionContainer 0xdeadbeef0001>], dest=None, title=None)> ('--cmdopt',),)
-    E        +          where <bound method Argument.getoption of _Group(<bound method Argument.getoption... [<_OptionContainer 0xdeadbeef0001>], dest=None, title=None)> = <bound method Argument.getoption of _Group(<bound method Argument.getoption... [<_OptionContainer 0xdeadbeef0001>], dest=None, title=None)> (<bound method Argument.getoption of _Group(<bound method Argument.getoption... [<_OptionContainer 0xdeadbeef0001>], dest=None, title=None)> (), <bound method Argument.getoption of _Group(<bound method Argument.getoption... [<_OptionContainer 0xdeadbeef0001>], dest=None, title=None)> ('--cmdopt',),)
-    E        +            and <bound method Argument.getoption of _Group(<bound method Argument.getoption... [<_OptionContainer 0xdeadbeef0001>], dest=None, title=None)> = <_pytest.config.Config object at 0xdeadbeef0002>.getoption
-    E        +              where <_pytest.config.Config object at 0xdeadbeef0002> = <FixtureRequest for <Function test_dynopt>>.config
-
-    test_dynamic.py:4: AssertionError
+    test_checkconfig.py:11: Failed
     ========================= short test summary info ==========================
-    FAILED test_dynamic.py::test_dynopt - assert None == 'type1'
+    FAILED test_checkconfig.py::test_something - Failed: not configured: 42
     1 failed in 0.12s
 
-    $ pytest -q --cmdopt=type1 test_dynamic.py
-    .                                                                    [100%]
-    1 passed in 0.12s
+如果你只想隐藏某些异常，你可以将 ``__tracebackhide__`` 设置为一个可调用对象，该对象接收 ``ExceptionInfo`` 对象。例如，你可以使用这个来确保意外的异常类型不会被隐藏：
 
-控制测试运行顺序
----------------------------------------------
+.. code-block:: python
 
-假设你想以特定顺序运行测试。一个简单的例子是按字母顺序倒序运行测试：
+    import operator
+
+    import pytest
+
+
+    class ConfigException(Exception):
+        pass
+
+
+    def checkconfig(x):
+        __tracebackhide__ = operator.methodcaller("errisinstance", ConfigException)
+        if not hasattr(x, "config"):
+            raise ConfigException(f"not configured: {x}")
+
+
+    def test_something():
+        checkconfig(42)
+
+这将避免在无关异常（即断言辅助函数中的错误）上隐藏异常回溯。
+
+
+检测是否在 pytest 运行中
+--------------------------------------------------------------
+
+.. regendoc:wipe
+
+通常让应用程序代码在被测试时表现不同是一个坏主意。但如果你绝对需要找出你的应用程序代码是否在测试中运行，你可以这样做：
+
+.. code-block:: python
+
+    import os
+
+
+    if os.environ.get("PYTEST_VERSION") is not None:
+        # 如果代码被 pytest 调用，你想做的事情
+        ...
+    else:
+        # 如果代码未被 pytest 调用，你想做的事情
+        ...
+
+
+向测试报告头部添加信息
+--------------------------------------------------------------
+
+.. regendoc:wipe
+
+在 ``pytest`` 运行中呈现额外信息很容易：
 
 .. code-block:: python
 
     # conftest.py 的内容
 
-    from pathlib import Path
 
-    import pytest
+    def pytest_report_header(config):
+        return "project deps: mylib-1.1"
 
+这将把字符串添加到测试头部：
 
-    def pytest_collection_modifyitems(items):
-        # 将项目（测试）按字母顺序倒序排序
-        items.sort(key=lambda item: item.nodeid, reverse=True)
-        # 如果你想按文件排序，使用：
-        # items.sort(key=lambda item: item.path, reverse=True)
+.. code-block:: pytest
 
+    $ pytest
+    =========================== test session starts ============================
+    platform linux -- Python 3.x.y, pytest-9.x.y, pluggy-1.x.y
+    project deps: mylib-1.1
+    rootdir: /home/sweet/project
+    collected 0 items
 
-.. _incremental testing test steps:
+    ========================== no tests ran in 0.12s ===========================
 
-按顺序执行的增量测试 - 测试步骤
--------------------------------------------------
+.. regendoc:wipe
 
-假设你有一个需要特定执行顺序的测试套件，
-例如，你希望通过越来越高级别的测试运行来测试一个完整
-的场景。这里有一个想法：我们将一个测试方法标记为期望失败，
-如果其中一个先前的测试方法失败。
-
-这意味着你可以根据从前面的测试继承某些 fixture 的测试
-来组织你的测试，并且你还可以安全地依赖于 fixture 提供的设置。
-
-这里是一个 ``conftest.py`` 模块的示例：
+也可以返回一个字符串列表，这些字符串将被视为多行信息。你可以考虑使用 ``config.getoption('verbose')`` 来在适当时显示更多信息：
 
 .. code-block:: python
 
     # conftest.py 的内容
+
+
+    def pytest_report_header(config):
+        if config.get_verbosity() > 0:
+            return ["info1: did you know that ...", "did you?"]
+
+这将仅在使用 "--v" 运行时添加信息：
+
+.. code-block:: pytest
+
+    $ pytest -v
+    =========================== test session starts ============================
+    platform linux -- Python 3.x.y, pytest-9.x.y, pluggy-1.x.y -- $PYTHON_PREFIX/bin/python
+    cachedir: .pytest_cache
+    info1: did you know that ...
+    did you?
+    rootdir: /home/sweet/project
+    collecting ... collected 0 items
+
+    ========================== no tests ran in 0.12s ===========================
+
+而在普通运行时没有：
+
+.. code-block:: pytest
+
+    $ pytest
+    =========================== test session starts ============================
+    platform linux -- Python 3.x.y, pytest-9.x.y, pluggy-1.x.y
+    rootdir: /home/sweet/project
+    collected 0 items
+
+    ========================== no tests ran in 0.12s ===========================
+
+分析测试持续时间
+--------------------------
+
+.. regendoc:wipe
+
+.. versionadded: 2.2
+
+如果你有一个运行缓慢的大型测试套件，你可能想找出哪些测试是最慢的。让我们创建一个人工测试套件：
+
+.. code-block:: python
+
+    # test_some_are_slow.py 的内容
+    import time
+
+
+    def test_funcfast():
+        time.sleep(0.1)
+
+
+    def test_funcslow1():
+        time.sleep(0.2)
+
+
+    def test_funcslow2():
+        time.sleep(0.3)
+
+现在我们可以分析哪些测试函数执行最慢：
+
+.. code-block:: pytest
+
+    $ pytest --durations=3
+    =========================== test session starts ============================
+    platform linux -- Python 3.x.y, pytest-9.x.y, pluggy-1.x.y
+    rootdir: /home/sweet/project
+    collected 3 items
+
+    test_some_are_slow.py ...                                            [100%]
+
+    =========================== slowest 3 durations ============================
+    0.30s call     test_some_are_slow.py::test_funcslow2
+    0.20s call     test_some_are_slow.py::test_funcslow1
+    0.10s call     test_some_are_slow.py::test_funcfast
+    ============================ 3 passed in 0.12s =============================
+
+增量测试 - 测试步骤
+---------------------------------------------------
+
+.. regendoc:wipe
+
+有时你可能会遇到由一系列测试步骤组成的测试情况。如果一步失败，继续执行后续步骤没有意义，因为它们无论如何都预期会失败，而且它们的回溯不会增加任何见解。这是一个简单的 ``conftest.py`` 文件，引入了一个 ``incremental`` 标记器，用于类上：
+
+.. code-block:: python
+
+    # conftest.py 的内容
+
     import pytest
+
+    # 存储每个测试类名称和参数化索引的失败历史（如果使用了参数化）
+    _test_failed_incremental: dict[str, dict[tuple[int, ...], str]] = {}
 
 
     def pytest_runtest_makereport(item, call):
         if "incremental" in item.keywords:
+            # incremental 标记器被使用
             if call.excinfo is not None:
-                parent = item.parent
-                parent._previousfailed = item
+                # 测试失败
+                # 检索测试的类名
+                cls_name = str(item.cls)
+                # 检索测试的索引（如果参数化与 incremental 结合使用）
+                parametrize_index = (
+                    tuple(item.callspec.indices.values())
+                    if hasattr(item, "callspec")
+                    else ()
+                )
+                # 检索测试函数的名称
+                test_name = item.originalname or item.name
+                # 存储失败测试的原始名称
+                _test_failed_incremental.setdefault(cls_name, {}).setdefault(
+                    parametrize_index, test_name
+                )
 
 
     def pytest_runtest_setup(item):
-        previousfailed = getattr(item.parent, "_previousfailed", None)
-        if previousfailed is not None:
-            pytest.xfail(f"之前的测试失败 ({previousfailed.name})")
+        if "incremental" in item.keywords:
+            # 检索测试的类名
+            cls_name = str(item.cls)
+            # 检查此类是否之前有测试失败
+            if cls_name in _test_failed_incremental:
+                # 检索测试的索引（如果参数化与 incremental 结合使用）
+                parametrize_index = (
+                    tuple(item.callspec.indices.values())
+                    if hasattr(item, "callspec")
+                    else ()
+                )
+                # 检索此类名称和索引第一个失败的测试函数名称
+                test_name = _test_failed_incremental[cls_name].get(parametrize_index, None)
+                # 如果找到名称，则此类名称和测试名称组合的测试已失败
+                if test_name is not None:
+                    pytest.xfail(f"previous test failed ({test_name})")
 
 
-这两个钩子实现一起工作，以终止类中标记为增量的测试。
-这里是一个测试模块示例：
+这两个钩子实现一起工作，以终止类中标记为增量的测试。这里是一个测试模块示例：
 
 .. code-block:: python
 
@@ -356,7 +610,7 @@
 
     test_step.py:11: AssertionError
     ========================= short test summary info ==========================
-    XFAIL test_step.py::TestUserHandling::test_deletion - 之前的测试失败 (test_modification)
+    XFAIL test_step.py::TestUserHandling::test_deletion - previous test failed (test_modification)
     ================== 1 failed, 2 passed, 1 xfailed in 0.12s ==================
 
 我们会看到 ``test_deletion`` 没有被执行，因为 ``test_modification``

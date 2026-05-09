@@ -196,20 +196,159 @@
     rootdir: /home/sweet/project
     collecting ... collected 4 items / 1 deselected / 3 selected
 
-    test_server.py::test_something_quick PASSED                           [ 33%]
-    test_server.py::test_another PASSED                                   [ 66%]
+    test_server.py::test_something_quick PASSED                          [ 33%]
+    test_server.py::test_another PASSED                                  [ 66%]
     test_server.py::TestClass::test_method PASSED                        [100%]
 
     ===================== 3 passed, 1 deselected in 0.12s ======================
 
+或者选择 "http" 和 "quick" 测试：
 
-为特定环境注册标记器
---------------------------------------------------------------
+.. code-block:: pytest
+
+    $ pytest -k "http or quick" -v
+    =========================== test session starts ============================
+    platform linux -- Python 3.x.y, pytest-9.x.y, pluggy-1.x.y -- $PYTHON_PREFIX/bin/python
+    cachedir: .pytest_cache
+    rootdir: /home/sweet/project
+    collecting ... collected 4 items / 2 deselected / 2 selected
+
+    test_server.py::test_send_http PASSED                                [ 50%]
+    test_server.py::test_something_quick PASSED                          [100%]
+
+    ===================== 2 passed, 2 deselected in 0.12s ======================
+
+你可以使用 ``and``、``or``、``not`` 和括号。
+
+除了测试的名称之外，:option:`-k` 还匹配测试的父级名称（通常是文件和类的名称）、测试函数上设置的属性、应用于它或其父级的标记器，以及显式添加到它或其父级的任何 :attr:`extra keywords <_pytest.nodes.Node.extra_keyword_matches>`。
+
+注册标记器
+-------------------------------------
+
+
+
+.. ini-syntax for custom markers:
+
+为你的测试套件注册标记器很简单：
+
+.. code-block:: toml
+
+    # pytest.toml 的内容
+    [pytest]
+    markers = ["webtest: mark a test as a webtest.", "slow: mark test as slow."]
+
+可以注册多个自定义标记器，每个标记器定义在自己的行中，如上例所示。
+
+你可以查询测试套件存在哪些标记器——列表包括我们刚刚定义的 ``webtest`` 和 ``slow`` 标记器：
+
+.. code-block:: pytest
+
+    $ pytest --markers
+    @pytest.mark.webtest: mark a test as a webtest.
+
+    @pytest.mark.slow: mark test as slow.
+
+    @pytest.mark.filterwarnings(warning): add a warning filter to the given test. see https://docs.pytest.org/en/stable/how-to/capture-warnings.html#pytest-mark-filterwarnings
+
+    @pytest.mark.skip(reason=None): skip the given test function with an optional reason. Example: skip(reason="no way of currently testing this") skips the test.
+
+    @pytest.mark.skipif(condition, ..., *, reason=...): skip the given test function if any of the conditions evaluate to True. Example: skipif(sys.platform == 'win32') skips the test if we are on the win32 platform. See https://docs.pytest.org/en/stable/reference/reference.html#pytest-mark-skipif
+
+    @pytest.mark.xfail(condition, ..., *, reason=..., run=True, raises=None, strict=strict_xfail): mark the test function as an expected failure if any of the conditions evaluate to True. Optionally specify a reason for better reporting and run=False if you don't even want to execute the test function. If only specific exception(s) are expected, you can list them in raises, and if the test fails in other ways, it will be reported as a true failure. See https://docs.pytest.org/en/stable/reference/reference.html#pytest-mark-xfail
+
+    @pytest.mark.parametrize(argnames, argvalues): call a test function multiple times passing in different arguments in turn. argvalues generally needs to be a list of values if argnames specifies only one name or a list of tuples of values if argnames specifies multiple names. Example: @parametrize('arg1', [1,2]) would lead to two calls of the decorated test function, one with arg1=1 and another with arg1=2.see https://docs.pytest.org/en/stable/how-to/parametrize.html for more info and examples.
+
+    @pytest.mark.usefixtures(fixturename1, fixturename2, ...): mark tests as needing all of the specified fixtures. see https://docs.pytest.org/en/stable/explanation/fixtures.html#usefixtures
+
+    @pytest.mark.tryfirst: mark a hook implementation function such that the plugin machinery will try to call it first/as early as possible. DEPRECATED, use @pytest.hookimpl(tryfirst=True) instead.
+
+    @pytest.mark.trylast: mark a hook implementation function such that the plugin machinery will try to call it last/as late as possible. DEPRECATED, use @pytest.hookimpl(trylast=True) instead.
+
+
+有关如何从插件添加和使用标记器的示例，请参见 :ref:`adding a custom marker from a plugin`。
+
+.. note::
+
+    建议显式注册标记器，以便：
+
+    * 测试套件中有一个地方定义你的标记器
+
+    * 通过 ``pytest --markers`` 查询现有标记器会给出良好的输出
+
+    * 如果你使用 :confval:`strict_markers` 配置选项，函数标记器中的拼写错误将被视为错误。
+
+.. _`scoped-marking`:
+
+标记整个类或模块
+----------------------------------------------------
+
+你可以将 ``pytest.mark`` 装饰器用于类，以将标记器应用于其所有测试方法：
+
+.. code-block:: python
+
+    # test_mark_classlevel.py 的内容
+    import pytest
+
+
+    @pytest.mark.webtest
+    class TestClass:
+        def test_startup(self):
+            pass
+
+        def test_startup_and_more(self):
+            pass
+
+这等同于直接将装饰器应用于两个测试函数。
+
+要在模块级别应用标记器，使用 :globalvar:`pytestmark` 全局变量::
+
+    import pytest
+    pytestmark = pytest.mark.webtest
+
+或多个标记器::
+
+    pytestmark = [pytest.mark.webtest, pytest.mark.slowtest]
+
+
+由于历史原因，在类装饰器引入之前，可以在测试类上设置 :globalvar:`pytestmark` 属性，如下所示：
+
+.. code-block:: python
+
+    import pytest
+
+
+    class TestClass:
+        pytestmark = pytest.mark.webtest
+
+.. _`marking individual tests when using parametrize`:
+
+使用参数化时标记单个测试
+-----------------------------------------------
+
+使用参数化时，应用标记器将使其应用于每个单独的测试。但是也可以将标记器应用于单个测试实例：
+
+.. code-block:: python
+
+    import pytest
+
+
+    @pytest.mark.foo
+    @pytest.mark.parametrize(
+        ("n", "expected"), [(1, 2), pytest.param(1, 3, marks=pytest.mark.bar), (2, 3)]
+    )
+    def test_increment(n, expected):
+        assert n + 1 == expected
+
+在这个示例中，标记 "foo" 将应用于三个测试中的每一个，而标记 "bar" 仅应用于第二个测试。Skip 和 xfail 标记也可以以这种方式应用，参见 :ref:`skip/xfail with parametrize`。
+
+.. _`adding a custom marker from a plugin`:
+
+自定义标记器和命令行选项以控制测试运行
+----------------------------------------------------------
 
 .. regendoc:wipe
 
-这是一个 ``conftest.py`` 文件的示例，它为特定环境注册一个自定义
-标记器：
+插件可以提供自定义标记器并基于它实现特定行为。这是一个自包含的示例，它添加了一个命令行选项和一个参数化测试函数标记器，以运行通过命名环境指定的测试：
 
 .. code-block:: python
 
@@ -235,11 +374,10 @@
 
 
     def pytest_runtest_setup(item):
-        envnames = [mark.args[0] for mark in item.iter_markers("env")]
+        envnames = [mark.args[0] for mark in item.iter_markers(name="env")]
         if envnames:
             if item.config.getoption("-E") not in envnames:
-                pytest.skip("test requires env in {!r}".format(envnames))
-
+                pytest.skip(f"test requires env in {envnames!r}")
 
 使用此本地插件的测试文件：
 
@@ -253,7 +391,6 @@
     @pytest.mark.env("stage1")
     def test_basic_db_operation():
         pass
-
 
 以及指定与测试需要不同的环境的示例调用：
 
@@ -458,7 +595,6 @@
     def test_runs_everywhere():
         pass
 
-
 然后你将看到两个测试被跳过，两个测试被按预期执行：
 
 .. code-block:: pytest
@@ -475,7 +611,7 @@
     SKIPPED [2] conftest.py:13: cannot run on platform linux
     ======================= 2 passed, 2 skipped in 0.12s =======================
 
-注意，如果你通过标记命令行选项指定平台，如下所示：
+注意，如果你通过标记器命令行选项指定平台，如下所示：
 
 .. code-block:: pytest
 

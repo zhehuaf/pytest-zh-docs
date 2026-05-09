@@ -1,33 +1,60 @@
-.. _writinghooks:
+.. _`writinghooks`:
 
-如何编写钩子函数
-=========================
+Writing hook functions
+======================
 
-钩子函数验证和标记
+
+.. _validation:
+
+钩子函数验证和执行
+--------------------------------------
+
+pytest 对于任何给定的钩子规范，从已注册的插件调用钩子函数。让我们看一个典型的钩子函数，用于 ``pytest_collection_modifyitems(session, config, items)`` 钩子，pytest 在收集所有测试项完成后调用它。
+
+当我们在插件中实现 ``pytest_collection_modifyitems`` 函数时，pytest 将在注册期间验证你使用的参数名称是否与规范匹配，如果不匹配则退出。
+
+让我们看一个可能的实现：
+
+.. code-block:: python
+
+    def pytest_collection_modifyitems(config, items):
+        # 在收集完成后调用
+        # 你可以修改 ``items`` 列表
+        ...
+
+在这里，``pytest`` 将传递 ``config``（pytest 配置对象）和 ``items``（收集的测试项列表），但不会传递 ``session`` 参数，因为我们没有在函数签名中列出它。这种动态的参数"剪枝"使 ``pytest`` 具有"未来兼容性"：我们可以引入新的钩子命名参数，而不会破坏现有钩子实现的签名。这是 pytest 插件通常长期兼容的原因之一。
+
+请注意，除了 ``pytest_runtest_*`` 之外的钩子函数不允许引发异常。这样做会破坏 pytest 运行。
+
+
+
+.. _firstresult:
+
+firstresult：在第一个非 None 结果处停止
 -------------------------------------------
 
-pytest 通过 :py:func:`pytest.hookimpl` 装饰器调用钩子函数。这允许通过标记将上下文/附加信息传递给钩子函数。
+大多数对 ``pytest`` 钩子的调用会产生一个 **结果列表**，其中包含所有被调用的钩子函数的非 None 结果。
 
-.. autofunction:: pytest.hookimpl
-    :noindex:
+一些钩子规范使用 ``firstresult=True`` 选项，因此钩子调用只执行到第一个 N 个已注册函数返回非 None 结果，然后该结果被用作整个钩子调用的结果。在这种情况下，不会调用剩余的钩子函数。
 
-通常，你可以直接编写钩子函数，而不需要装饰器：
+.. _`hookwrapper`:
 
-.. code-block:: python
+钩子包装器：在其他钩子周围执行
+-------------------------------------------------
 
-    def pytest_collection_modifyitems(items, config):
-        # 直接在 items 上调用钩子
-        items.append(MyItem())
+pytest 插件可以实现钩子包装器，它们包装其他钩子实现的执行。钩子包装器是一个生成器函数，只 yield 一次。当 pytest 调用钩子时，它首先执行钩子包装器，并将与常规钩子相同的参数传递给它。
 
-如果在 pytest 或插件中发现没有标记的钩子函数，它将作为 ``hookwrapper=False`` 和 ``trylast=False`` 调用。它们将按照发现的顺序调用，即由 ``conftest.py`` 导入顺序决定。
+在钩子包装器的 yield 点，pytest 将执行下一个钩子实现并将它们的结果返回到 yield 点，或者如果它们引发了异常则传播异常。
 
-如果你希望调用你的钩子函数作为包装器函数，请将其装饰为：
+以下是钩子包装器的示例定义：
 
 .. code-block:: python
+
+    import pytest
+
 
     @pytest.hookimpl(wrapper=True)
-    def pytest_collection_modifyitems(items, config):
-        # 将在调用下一个钩子之前执行
+    def pytest_pyfunc_call(pyfuncitem):
         do_something_before_next_hook_executes()
 
         # 如果结果是一个异常，将引发该异常。
@@ -57,39 +84,39 @@ pytest 通过 :py:func:`pytest.hookimpl` 装饰器调用钩子函数。这允许
 
 .. code-block:: python
 
-    # 插件 1
+    # Plugin 1
     @pytest.hookimpl(tryfirst=True)
     def pytest_collection_modifyitems(items):
-        # 将尽可能早地执行
+        # will execute as early as possible
         ...
 
 
-    # 插件 2
+    # Plugin 2
     @pytest.hookimpl(trylast=True)
     def pytest_collection_modifyitems(items):
-        # 将尽可能晚地执行
+        # will execute as late as possible
         ...
 
 
-    # 插件 3
+    # Plugin 3
     @pytest.hookimpl(wrapper=True)
     def pytest_collection_modifyitems(items):
-        # 甚至会在上面的 tryfirst 之前执行！
+        # will execute even before the tryfirst one above!
         try:
             return (yield)
         finally:
-            # 将在所有非包装器执行后执行
+            # will execute after all non-wrappers executed
             ...
 
 执行顺序如下：
 
-1. 调用 Plugin3 的 pytest_collection_modifyitems 直到 yield 点，因为它是一个钩子包装器。
+1. Plugin3 的 pytest_collection_modifyitems 被调用直到 yield 点，因为它是一个钩子包装器。
 
-2. 调用 Plugin1 的 pytest_collection_modifyitems，因为它标记为 ``tryfirst=True``。
+2. Plugin1 的 pytest_collection_modifyitems 被调用，因为它标记了 ``tryfirst=True``。
 
-3. 调用 Plugin2 的 pytest_collection_modifyitems，因为它标记为 ``trylast=True`` （但即使没有此标记，它也会在 Plugin1 之后执行）。
+3. Plugin2 的 pytest_collection_modifyitems 被调用，因为它标记了 ``trylast=True``（但即使没有此标记，它也会在 Plugin1 之后）。
 
-4. 然后执行 Plugin3 的 pytest_collection_modifyitems 的 yield 点之后的代码。yield 接收调用非包装器的结果，如果非包装器引发异常则引发异常。
+4. Plugin3 的 pytest_collection_modifyitems 然后执行 yield 点之后的代码。yield 接收调用非包装器的结果，如果非包装器引发了异常则引发异常。
 
 也可以在钩子包装器上使用 ``tryfirst`` 和 ``trylast``，在这种情况下，它会影响钩子包装器之间的排序。
 
@@ -107,7 +134,7 @@ pytest 通过 :py:func:`pytest.hookimpl` 装饰器调用钩子函数。这允许
 .. autofunction:: _pytest.hookspec.pytest_addhooks
     :noindex:
 
-钩子通常声明为仅包含文档描述何时将调用钩子以及期望什么返回值的空操作函数。函数的名称必须以 ``pytest_`` 开头，否则 pytest 不会识别它们。
+钩子通常声明为仅包含文档描述何时将调用钩子以及期望什么返回值的空操作函数。函数的名称必须以 `pytest_` 开头，否则 pytest 不会识别它们。
 
 这里有一个示例。假设这段代码在 ``sample_hook.py`` 模块中。
 
@@ -115,7 +142,7 @@ pytest 通过 :py:func:`pytest.hookimpl` 装饰器调用钩子函数。这允许
 
     def pytest_my_hook(config):
         """
-        接收 pytest 配置并对其执行操作
+        Receives the pytest config and does things with it
         """
 
 要在 pytest 中注册钩子，它们需要在自己的模块或类中结构化。然后可以将此类或模块传递给 ``pluginmanager`` 使用 ``pytest_addhooks`` 函数（它本身是 pytest 公开的一个钩子）。
@@ -123,7 +150,7 @@ pytest 通过 :py:func:`pytest.hookimpl` 装饰器调用钩子函数。这允许
 .. code-block:: python
 
     def pytest_addhooks(pluginmanager):
-        """此示例假设钩子分组在 'sample_hook' 模块中。"""
+        """This example assumes the hooks are grouped in the 'sample_hook' module."""
         from my_app.tests import sample_hook
 
         pluginmanager.add_hookspecs(sample_hook)
@@ -138,22 +165,22 @@ pytest 通过 :py:func:`pytest.hookimpl` 装饰器调用钩子函数。这允许
 
     @pytest.fixture()
     def my_fixture(pytestconfig):
-        # 调用名为 "pytest_my_hook" 的钩子
-        # 'result' 将是所有已注册函数的返回值列表。
+        # call the hook called "pytest_my_hook"
+        # 'result' will be a list of return values from all registered functions.
         result = pytestconfig.hook.pytest_my_hook(config=pytestconfig)
 
 .. note::
-    钩子仅使用关键字参数接收参数。
+    Hooks receive parameters using only keyword arguments.
 
 现在你的钩子已准备好被使用。要注册钩子上的函数，其他插件或用户现在只需在它们的 ``conftest.py`` 中用正确的签名定义函数 ``pytest_my_hook``。
 
-示例：
+Example:
 
 .. code-block:: python
 
     def pytest_my_hook(config):
         """
-        将所有活动钩子打印到屏幕。
+        Print all active hooks to the screen.
         """
         print(config.hook)
 
@@ -164,27 +191,29 @@ pytest 通过 :py:func:`pytest.hookimpl` 装饰器调用钩子函数。这允许
 
 .. _`addoptionhooks`:
 
+
 在 pytest_addoption 中使用钩子
---------------------------------------
+-------------------------------
 
 偶尔，有必要根据另一个插件中的钩子改变一个插件定义命令行选项的方式。例如，一个插件可能暴露一个命令行选项，另一个插件需要为该选项定义默认值。可以使用 pluginmanager 安装和使用钩子来完成此任务。插件将定义并添加钩子，并使用 pytest_addoption 如下所示：
 
 .. code-block:: python
 
-   # hooks.py 的内容
+   # contents of hooks.py
 
 
-   # 使用 firstresult=True 因为我们只希望一个插件定义此默认值
+   # Use firstresult=True because we only want one plugin to define this
+   # default value
    @hookspec(firstresult=True)
    def pytest_config_file_default_value():
-       """返回配置文件命令行选项的默认值。"""
+       """Return the default value for the config file command line option."""
 
 
-   # myplugin.py 的内容
+   # contents of myplugin.py
 
 
    def pytest_addhooks(pluginmanager):
-       """此示例假设钩子分组在 'hooks' 模块中。"""
+       """This example assumes the hooks are grouped in the 'hooks' module."""
        from . import hooks
 
        pluginmanager.add_hookspecs(hooks)
@@ -194,7 +223,7 @@ pytest 通过 :py:func:`pytest.hookimpl` 装饰器调用钩子函数。这允许
        default_value = pluginmanager.hook.pytest_config_file_default_value()
        parser.addoption(
            "--config-file",
-           help="要使用的配置文件，默认为 %(default)s",
+           help="Config file to use, defaults to %(default)s",
            default=default_value,
        )
 
@@ -207,7 +236,7 @@ pytest 通过 :py:func:`pytest.hookimpl` 装饰器调用钩子函数。这允许
 
 
 可选地使用第三方插件的钩子
--------------------------------------------
+---------------------------------------------
 
 如上所述，使用来自插件的新钩子可能有点棘手，因为标准 :ref:`验证机制 <validation>`：
 如果你依赖于未安装的插件，验证将失败，错误消息对你的用户来说意义不大。
@@ -216,14 +245,14 @@ pytest 通过 :py:func:`pytest.hookimpl` 装饰器调用钩子函数。这允许
 
 .. code-block:: python
 
-    # myplugin.py 的内容
+    # contents of myplugin.py
 
 
     class DeferPlugin:
-        """简单的插件来推迟 pytest-xdist 钩子函数。"""
+        """Simple plugin to defer pytest-xdist hook functions."""
 
         def pytest_testnodedown(self, node, error):
-            """标准的 xdist 钩子函数。"""
+            """standard xdist hook function."""
 
 
     def pytest_configure(config):

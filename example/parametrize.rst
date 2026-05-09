@@ -1,101 +1,335 @@
-.. _`parametrize examples`:
+
+.. _paramexamples:
 
 参数化测试
 =================================================
 
-以下是一些使用 :ref:`parametrize <parametrizing>` 的示例。
+``pytest`` 允许你轻松地参数化测试函数。
+有关基本文档，请参见 :ref:`parametrize-basics`。
 
+下面我们提供一些使用内置机制的示例。
 
-.. _`parametrizing test functions`:
+根据命令行参数生成参数组合
+----------------------------------------------------------------------------
 
-参数化测试函数
-----------------------------------------------------
+.. regendoc:wipe
 
-这是使用 :ref:`@pytest.mark.parametrize <@pytest.mark.parametrize>` 标记测试函数的简单示例，它使用所有 ``argvalues`` 检查特定的输入/预期输出组合：
+假设我们想用不同的计算参数执行测试，并且参数范围由命令行参数决定。让我们首先编写一个简单的（什么都不做的）计算测试：
 
 .. code-block:: python
 
-    # test_expectation.py 的内容
-    import pytest
+    # test_compute.py 的内容
 
 
-    @pytest.mark.parametrize("test_input,expected", [("3+5", 8), ("2+4", 6), ("6*9", 42)])
-    def test_eval(test_input, expected):
-        assert eval(test_input) == expected
+    def test_compute(param1):
+        assert param1 < 4
 
-通过运行，你会看到三个测试被执行：
+现在我们添加一个这样的测试配置：
+
+.. code-block:: python
+
+    # conftest.py 的内容
+
+
+    def pytest_addoption(parser):
+        parser.addoption("--all", action="store_true", help="run all combinations")
+
+
+    def pytest_generate_tests(metafunc):
+        if "param1" in metafunc.fixturenames:
+            if metafunc.config.getoption("all"):
+                end = 5
+            else:
+                end = 2
+            metafunc.parametrize("param1", range(end))
+
+这意味着如果我们不传递 ``--all``，我们只运行 2 个测试：
 
 .. code-block:: pytest
 
-    $ pytest
+    $ pytest -q test_compute.py
+    ..                                                                   [100%]
+    2 passed in 0.12s
+
+我们只运行了两个计算，所以看到两个点。让我们运行完整版本：
+
+.. code-block:: pytest
+
+    $ pytest -q --all
+    ....F                                                                [100%]
+    ================================= FAILURES =================================
+    _____________________________ test_compute[4] ______________________________
+
+    param1 = 4
+
+        def test_compute(param1):
+    >       assert param1 < 4
+    E       assert 4 < 4
+
+    test_compute.py:4: AssertionError
+    ========================= short test summary info ==========================
+    FAILED test_compute.py::test_compute[4] - assert 4 < 4
+    1 failed, 4 passed in 0.12s
+
+正如预期的那样，当运行 ``param1`` 值的完整范围时，我们会在最后一个值上得到错误。
+
+
+测试 ID 的多种选项
+------------------------------------
+
+pytest 将为参数化测试中的每组值构建一个字符串作为测试 ID。这些 ID 可以与 :option:`-k` 一起使用来选择要运行的特定用例，并且当某个用例失败时它们也会标识该特定用例。使用 :option:`--collect-only` 运行 pytest 将显示生成的 ID。
+
+数字、字符串、布尔值和 None 将在测试 ID 中使用它们通常的字符串表示。对于其他对象，pytest 将基于参数名称生成一个字符串：
+
+.. code-block:: python
+
+    # test_time.py 的内容
+
+    from datetime import datetime, timedelta
+
+    import pytest
+
+    testdata = [
+        (datetime(2001, 12, 12), datetime(2001, 12, 11), timedelta(1)),
+        (datetime(2001, 12, 11), datetime(2001, 12, 12), timedelta(-1)),
+    ]
+
+
+    @pytest.mark.parametrize("a,b,expected", testdata)
+    def test_timedistance_v0(a, b, expected):
+        diff = a - b
+        assert diff == expected
+
+
+    @pytest.mark.parametrize("a,b,expected", testdata, ids=["forward", "backward"])
+    def test_timedistance_v1(a, b, expected):
+        diff = a - b
+        assert diff == expected
+
+
+    def idfn(val):
+        if isinstance(val, (datetime,)):
+            # 注意这不会显示任何时/分/秒
+            return val.strftime("%Y%m%d")
+
+
+    @pytest.mark.parametrize("a,b,expected", testdata, ids=idfn)
+    def test_timedistance_v2(a, b, expected):
+        diff = a - b
+        assert diff == expected
+
+
+    @pytest.mark.parametrize(
+        "a,b,expected",
+        [
+            pytest.param(
+                datetime(2001, 12, 12), datetime(2001, 12, 11), timedelta(1), id="forward"
+            ),
+            pytest.param(
+                datetime(2001, 12, 11), datetime(2001, 12, 12), timedelta(-1), id="backward"
+            ),
+        ],
+    )
+    def test_timedistance_v3(a, b, expected):
+        diff = a - b
+        assert diff == expected
+
+在 ``test_timedistance_v0`` 中，我们让 pytest 生成测试 ID。
+
+在 ``test_timedistance_v1`` 中，我们将 ``ids`` 指定为用作测试 ID 的字符串列表。这些很简洁，但维护起来可能很麻烦。
+
+在 ``test_timedistance_v2`` 中，我们将 ``ids`` 指定为一个函数，该函数可以生成字符串表示作为测试 ID 的一部分。所以我们的 ``datetime`` 值使用由 ``idfn`` 生成的标签，但由于我们没有为 ``timedelta`` 对象生成标签，它们仍然使用默认的 pytest 表示：
+
+.. code-block:: pytest
+
+    $ pytest test_time.py --collect-only
     =========================== test session starts ============================
     platform linux -- Python 3.x.y, pytest-9.x.y, pluggy-1.x.y
     rootdir: /home/sweet/project
-    collected 3 items
+    collected 8 items
 
-    test_expectation.py ..F                                              [100%]
+    <Dir parametrize.rst-213>
+      <Module test_time.py>
+        <Function test_timedistance_v0[a0-b0-expected0]>
+        <Function test_timedistance_v0[a1-b1-expected1]>
+        <Function test_timedistance_v1[forward]>
+        <Function test_timedistance_v1[backward]>
+        <Function test_timedistance_v2[20011212-20011211-expected0]>
+        <Function test_timedistance_v2[20011211-20011212-expected1]>
+        <Function test_timedistance_v3[forward]>
+        <Function test_timedistance_v3[backward]>
 
-    ================================= FAILURES =================================
-    _______________________________ test_eval[6*9-42] ____________________________
+    ======================== 8 tests collected in 0.12s ========================
 
-    test_input = '6*9', expected = 42
+在 ``test_timedistance_v3`` 中，我们使用 ``pytest.param`` 将测试 ID 与实际数据一起指定，而不是单独列出它们。
 
-        @pytest.mark.parametrize("test_input,expected", [("3+5", 8), ("2+4", 6), ("6*9", 42)])
-        def test_eval(test_input, expected):
-    >       assert eval(test_input) == expected
-    E       assert 54 == 42
-    E        +  where 54 = eval('6*9')
+快速移植 "testscenarios"
+------------------------------------
 
-    test_expectation.py:6: AssertionError
-    ========================= short test summary info ==========================
-    FAILED test_expectation.py::test_eval[6*9-42] - assert 54 == 42
-    ======================= 2 passed, 1 failed in 0.12s ==========================
-
-注意，在失败的测试中，pytest 特别报告了 ``test_input`` 和 ``expected`` 的值。
-
-也可以在单个函数参数上堆叠参数化标记，产生所有参数组合：
+以下是运行使用 :pypi:`testscenarios` 配置的测试的快速移植，这是 Robert Collins 为标准 unittest 框架编写的附加组件。我们只需要做一些工作来为 pytest 的 :py:func:`Metafunc.parametrize <pytest.Metafunc.parametrize>` 构造正确的参数：
 
 .. code-block:: python
 
-    # test_foocompare.py 的内容
-    import pytest
+    # test_scenarios.py 的内容
 
 
-    @pytest.mark.parametrize("x", [0, 1])
-    @pytest.mark.parametrize("y", [2, 3])
-    def test_foo(x, y):
-        pass
+    def pytest_generate_tests(metafunc):
+        idlist = []
+        argvalues = []
+        for scenario in metafunc.cls.scenarios:
+            idlist.append(scenario[0])
+            items = scenario[1].items()
+            argnames = [x[0] for x in items]
+            argvalues.append([x[1] for x in items])
+        metafunc.parametrize(argnames, argvalues, ids=idlist, scope="class")
 
 
-这将运行测试，参数设置为 ``x=0/y=2``、``x=0/y=3``、``x=1/y=2`` 和 ``x=1/y=3``，以装饰器组合的顺序穷举参数组合。
+    scenario1 = ("basic", {"attribute": "value"})
+    scenario2 = ("advanced", {"attribute": "value2"})
 
+
+    class TestSampleWithScenarios:
+        scenarios = [scenario1, scenario2]
+
+        def test_demo1(self, attribute):
+            assert isinstance(attribute, str)
+
+        def test_demo2(self, attribute):
+            assert isinstance(attribute, str)
+
+这是一个完全自包含的示例，你可以运行：
 
 .. code-block:: pytest
 
-    $ pytest -v test_foocompare.py
+    $ pytest test_scenarios.py
     =========================== test session starts ============================
-    platform linux -- Python 3.x.y, pytest-9.x.y, pluggy-1.x.y -- $PYTHON_PREFIX/bin/python
-    cachedir: .pytest_cache
+    platform linux -- Python 3.x.y, pytest-9.x.y, pluggy-1.x.y
     rootdir: /home/sweet/project
     collected 4 items
 
-    test_foocompare.py::test_foo[2-0] PASSED                              [ 25%]
-    test_foocompare.py::test_foo[2-1] PASSED                              [ 50%]
-    test_foocompare.py::test_foo[3-0] PASSED                              [ 75%]
-    test_foocompare.py::test_foo[3-1] PASSED                              [100%]
+    test_scenarios.py ....                                               [100%]
 
     ============================ 4 passed in 0.12s =============================
 
-.. _parametrizing_indirect:
+如果你只收集测试，你将很好地看到测试函数的变体 'advanced' 和 'basic'：
 
-使用参数化间接应用 fixtures
---------------------------------------------------------------
+.. code-block:: pytest
 
-假设我们有以下示例：
+    $ pytest --collect-only test_scenarios.py
+    =========================== test session starts ============================
+    platform linux -- Python 3.x.y, pytest-9.x.y, pluggy-1.x.y
+    rootdir: /home/sweet/project
+    collected 4 items
+
+    <Dir parametrize.rst-213>
+      <Module test_scenarios.py>
+        <Class TestSampleWithScenarios>
+          <Function test_demo1[basic]>
+          <Function test_demo2[basic]>
+          <Function test_demo1[advanced]>
+          <Function test_demo2[advanced]>
+
+    ======================== 4 tests collected in 0.12s ========================
+
+注意我们告诉 ``metafunc.parametrize()`` 你的场景值应该被视为类作用域的。在 pytest-2.3 中，这导致了基于资源的排序。
+
+延迟参数化资源的设置
+---------------------------------------------------
+
+.. regendoc:wipe
+
+测试函数的参数化发生在收集时。最好只在实际测试运行时设置昂贵的资源，如数据库连接或子进程。这里有一个简单的示例，说明如何实现这一点。此测试需要 ``db`` 对象 fixture：
 
 .. code-block:: python
 
-    # test_indirect.py 的内容
+    # test_backends.py 的内容
+
+    import pytest
+
+
+    def test_db_initialized(db):
+        # 一个虚拟测试
+        if db.__class__.__name__ == "DB2":
+            pytest.fail("deliberately failing for demo purposes")
+
+我们现在可以添加一个测试配置，生成对 ``test_db_initialized`` 函数的两次调用，并实现一个工厂，为实际的测试调用创建数据库对象：
+
+.. code-block:: python
+
+    # conftest.py 的内容
+    import pytest
+
+
+    def pytest_generate_tests(metafunc):
+        if "db" in metafunc.fixturenames:
+            metafunc.parametrize("db", ["d1", "d2"], indirect=True)
+
+
+    class DB1:
+        "one database object"
+
+
+    class DB2:
+        "alternative database object"
+
+
+    @pytest.fixture
+    def db(request):
+        if request.param == "d1":
+            return DB1()
+        elif request.param == "d2":
+            return DB2()
+        else:
+            raise ValueError("invalid internal test config")
+
+让我们首先看看它在收集时的样子：
+
+.. code-block:: pytest
+
+    $ pytest test_backends.py --collect-only
+    =========================== test session starts ============================
+    platform linux -- Python 3.x.y, pytest-9.x.y, pluggy-1.x.y
+    rootdir: /home/sweet/project
+    collected 2 items
+
+    <Dir parametrize.rst-213>
+      <Module test_backends.py>
+        <Function test_db_initialized[d1]>
+        <Function test_db_initialized[d2]>
+
+    ======================== 2 tests collected in 0.12s ========================
+
+然后当我们运行测试时：
+
+.. code-block:: pytest
+
+    $ pytest -q test_backends.py
+    .F                                                                   [100%]
+    ================================= FAILURES =================================
+    _________________________ test_db_initialized[d2] __________________________
+
+    db = <conftest.DB2 object at 0xdeadbeef0001>
+
+        def test_db_initialized(db):
+            # 一个虚拟测试
+            if db.__class__.__name__ == "DB2":
+    >           pytest.fail("deliberately failing for demo purposes")
+    E           Failed: deliberately failing for demo purposes
+
+    test_backends.py:8: Failed
+    ========================= short test summary info ==========================
+    FAILED test_backends.py::test_db_initialized[d2] - Failed: deliberately f...
+    1 failed, 1 passed in 0.12s
+
+第一次调用 ``db == "DB1"`` 通过，而第二次调用 ``db == "DB2"`` 失败。我们的 ``db`` fixture 函数在设置阶段实例化了每个 DB 值，而 ``pytest_generate_tests`` 在收集阶段生成了对 ``test_db_initialized`` 的两次相应调用。
+
+间接参数化
+---------------------------------------------------
+
+在对测试进行参数化时，使用 ``indirect=True`` 参数允许使用接收值的 fixture 在将值传递给测试之前进行参数化：
+
+.. code-block:: python
+
     import pytest
 
 
@@ -108,14 +342,19 @@
     def test_indirect(fixt):
         assert len(fixt) == 3
 
+这可以用于例如在 fixture 中在测试运行时进行更昂贵的设置，而不是在收集时运行这些设置步骤。
 
-这可以用于比简单循环更少样板代码地编写许多测试，最重要的是可以使用完整的 :ref:`pytest fixture 机制 <fixtures>`。
+.. regendoc:wipe
 
-通过 ``request`` 对象，可以向后传递请求 test context 或 parametrization 参数，并向前传递 fixture function：
+在特定参数上应用 indirect
+---------------------------------------------------
+
+通常，参数化使用多个参数名称。可以将 ``indirect`` 参数应用于特定参数。可以通过传递参数名称的列表或元组给 ``indirect`` 来实现。在下面的示例中，有一个使用两个 fixtures ``x`` 和 ``y`` 的 ``test_indirect`` 函数。这里我们将包含 fixture ``x`` 名称的列表传递给 indirect。indirect 参数将仅应用于此参数，值 ``a`` 将被传递给相应的 fixture 函数：
 
 .. code-block:: python
 
     # test_indirect_list.py 的内容
+
     import pytest
 
 
@@ -155,6 +394,7 @@
 --------------------------------------------------------------
 
 .. _`unittest parametrizer`: https://github.com/testing-cabal/unittest-ext/blob/master/params.py
+
 
 这里是一个示例 ``pytest_generate_tests`` 函数，实现了类似 Michael Foord 的 `unittest parametrizer`_ 的参数化方案，但代码量少得多：
 

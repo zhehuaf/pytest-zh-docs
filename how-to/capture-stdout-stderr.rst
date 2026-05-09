@@ -95,7 +95,7 @@ pytest 通过 :option:`--capture=` 命令行参数或使用 fixtures 来拦截 s
 从测试函数访问捕获的输出
 ---------------------------------------------------
 
-:fixture:`capsys`、:fixture:`capsysbinary`、:fixture:`capfd` 和 :fixture:`capfdbinary` fixtures 允许访问测试执行期间创建的 ``stdout``/``stderr`` 输出。
+:fixture:`capsys`、:fixture:`capteesys`、:fixture:`capsysbinary`、:fixture:`capfd` 和 :fixture:`capfdbinary` fixtures 允许访问测试执行期间创建的 ``stdout``/``stderr`` 输出。
 
 以下是一个执行一些与输出相关的检查的示例测试函数：
 

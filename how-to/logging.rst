@@ -60,7 +60,7 @@ pytest 自动捕获 ``WARNING`` 级别或更高级别的日志消息，并在每
 
         [pytest]
         log_format = %(asctime)s %(levelname)s %(message)s
-        log_date_date_format = %Y-%m-%d %H:%M:%S
+        log_date_format = %Y-%m-%d %H:%M:%S
 
 可以通过 :option:`--log-disable={logger_name}` 禁用特定的日志记录器。此参数可以多次传递：
 
