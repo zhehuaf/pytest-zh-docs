@@ -98,7 +98,7 @@ html_favicon = "img/favicon.png"
 html_use_index = False
 html_show_sourcelink = False
 
-html_baseurl = "https://pytest-zh.netlify.app/"
+html_baseurl = "https://tangerine-cannoli-6ec8dd.netlify.app/"
 
 sitemap_url_scheme = "{link}"
 
