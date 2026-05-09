@@ -8,19 +8,14 @@
 
 .. note::
 
-   本文档基于 **pytest 9.0.3** 英文文档翻译。经逐文件行数对比，翻译完整度如下：
+   本文档基于 **pytest 9.0.3** 英文文档翻译。
 
-   **完全未翻译**（英文原版）：``changelog``, ``reference/reference``（API 参考, 3663行）,
-   ``deprecations``（1513行）, ``builtin``（279行）, ``backwards-compatibility``,
-   ``explanation/ci``, ``explanation/flaky``, ``how-to/bash-completion``,
-   ``reference/exit-codes``, ``talks``, 及全部 ``announce/``（版本发布公告）。
-
-   **0% 翻译**：``reference/plugin_list``（52行 vs 英文15472行）。
-
-   **部分翻译**：``how-to/monkeypatch``（11%）、``how-to/cache``（23%）、
-   ``how-to/plugins``（33%）、``explanation/fixtures``（36%）、
-   ``how-to/failures``（51%）、``how-to/output``（59%）、
-   ``how-to/writing_plugins``（71%）等。
+   **翻译完成度：**
+   - ✅ 所有 ``how-to/``、``explanation/``、``example/`` 目录下的文档已全部翻译完成
+   - ✅ ``builtin``、``backwards-compatibility``、``reference/exit-codes``、``talks``、``adopt``、``license`` 等参考文档已翻译完成
+   - ⏳ ``changelog``（11796行）、``deprecations``（1513行）、``reference/reference``（API 参考, 3663行）等仍有待翻译
+   - ⏳ ``reference/plugin_list``（自动生成的插件列表）待翻译
+   - ⏳ ``announce/``（版本发布公告）待翻译
 
    欢迎通过 https://github.com/pytest-dev/pytest 贡献翻译。
 
