@@ -29,7 +29,7 @@ Managing pytest's output
     pytest --tb=native  # Python 标准库格式
     pytest --tb=no      # 完全没有回溯
 
-:option:`--full-trace` 导致在错误时打印非常长的跟踪（比 :option:`--tb=long` 更长）。它还确保在 **KeyboardInterrupt**（Ctrl+C）时打印堆栈跟踪。
+:option:`--full-trace` 导致在错误时打印非常长的跟踪（比 :option:`--tb=long` 更长）。它还确保在 KeyboardInterrupt（Ctrl+C）时打印堆栈跟踪。
 如果测试花费的时间太长，你使用 Ctrl+C 中断它们以找出测试 *挂起* 的位置，这非常有用。默认情况下不会显示任何输出（因为 pytest 捕获了 KeyboardInterrupt）。通过使用此选项，你可以确保显示跟踪。
 
 
@@ -779,7 +779,7 @@ record_testsuite_property
 将测试报告发送到在线 pastebin 服务
 --------------------------------------------------
 
-**为每个测试失败创建 URL**：
+为每个测试失败创建 URL：
 
 .. code-block:: bash
 
@@ -787,7 +787,7 @@ record_testsuite_property
 
 这将把测试运行信息提交到远程 Paste 服务，并为每个失败提供一个 URL。你可以像往常一样选择测试，或添加例如 :option:`-x`，如果你只想发送一个特定的失败。
 
-**为整个测试会话日志创建 URL**：
+为整个测试会话日志创建 URL：
 
 .. code-block:: bash
 

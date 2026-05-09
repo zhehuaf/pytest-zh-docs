@@ -7,7 +7,7 @@ Changelog
 Versions follow `Semantic Versioning <https://semver.org/>`_ (``<major>.<minor>.<patch>``).
 
 Backward incompatible (breaking) changes will only be introduced in major versions
-with advance notice in the **Deprecations** section of releases.
+with advance notice in the Deprecations section of releases.
 
 
 ..
@@ -164,7 +164,7 @@ New features
 ------------
 
 
-- `#1367 <https://github.com/pytest-dev/pytest/issues/1367>`_: **Support for subtests** has been added.
+- `#1367 <https://github.com/pytest-dev/pytest/issues/1367>`_: Support for subtests has been added.
 
   :ref:`subtests <subtests>` are an alternative to parametrization, useful in situations where the parametrization values are not all known at collection time.
 
@@ -194,7 +194,7 @@ New features
       This feature is experimental and will likely evolve in future releases. By that we mean that we might change how subtests are reported on failure, but the functionality and how to use it are stable.
 
 
-- `#13743 <https://github.com/pytest-dev/pytest/issues/13743>`_: Added support for **native TOML configuration files**.
+- `#13743 <https://github.com/pytest-dev/pytest/issues/13743>`_: Added support for native TOML configuration files.
 
   While pytest, since version 6, supports configuration in ``pyproject.toml`` files under ``[tool.pytest.ini_options]``,
   it does so in an "INI compatibility mode", where all configuration values are treated as strings or list of strings.
@@ -233,7 +233,7 @@ New features
   See :ref:`config file formats` for full details.
 
 
-- `#13823 <https://github.com/pytest-dev/pytest/issues/13823>`_: Added a **"strict mode"** enabled by the :confval:`strict` configuration option.
+- `#13823 <https://github.com/pytest-dev/pytest/issues/13823>`_: Added a "strict mode" enabled by the :confval:`strict` configuration option.
 
   When set to ``true``, the :confval:`strict` option currently enables
 
@@ -260,9 +260,9 @@ New features
   This can be particularly useful for catching unintended duplicates.
 
 
-- `#13072 <https://github.com/pytest-dev/pytest/issues/13072>`_: Added support for displaying test session **progress in the terminal tab** using the `OSC 9;4; <https://conemu.github.io/en/AnsiEscapeCodes.html#ConEmu_specific_OSC>`_ ANSI sequence.
+- `#13072 <https://github.com/pytest-dev/pytest/issues/13072>`_: Added support for displaying test session progress in the terminal tab using the `OSC 9;4; <https://conemu.github.io/en/AnsiEscapeCodes.html#ConEmu_specific_OSC>`_ ANSI sequence.
 
-  **Note**: *This feature has been disabled by default in version 9.0.2, except on Windows, due to compatibility issues with some terminal emulators.
+  Note: *This feature has been disabled by default in version 9.0.2, except on Windows, due to compatibility issues with some terminal emulators.
   You may enable it again by passing* ``-p terminalprogress``. *We may enable it by default again once compatibility improves in the future.*
 
   When pytest runs in a supported terminal emulator like ConEmu, Gnome Terminal, Ptyxis, Windows Terminal, Kitty or Ghostty,
@@ -352,13 +352,13 @@ Removals and backward incompatible breaking changes
 - The non-public ``config.args`` attribute used to be able to contain ``pathlib.Path`` instances; now it can only contain strings.
 
 
-- `#13779 <https://github.com/pytest-dev/pytest/issues/13779>`_: **PytestRemovedIn9Warning deprecation warnings are now errors by default.**
+- `#13779 <https://github.com/pytest-dev/pytest/issues/13779>`_: PytestRemovedIn9Warning deprecation warnings are now errors by default.
 
   Following our plan to remove deprecated features with as little disruption as
   possible, all warnings of type ``PytestRemovedIn9Warning`` now generate errors
   instead of warning messages by default.
 
-  **The affected features will be effectively removed in pytest 9.1**, so please consult the
+  The affected features will be effectively removed in pytest 9.1, so please consult the
   :ref:`deprecations` section in the docs for directions on how to update existing code.
 
   In the pytest ``9.0.X`` series, it is possible to change the errors back into warnings as a
@@ -372,7 +372,7 @@ Removals and backward incompatible breaking changes
 
   But this will stop working when pytest ``9.1`` is released.
 
-  **If you have concerns** about the removal of a specific feature, please add a
+  If you have concerns about the removal of a specific feature, please add a
   comment to :issue:`13779`.
 
 
@@ -599,7 +599,7 @@ New features
 
   In this scenario with the default options, pytest will collect the class `Testament` from `tests/test_testament.py` because it starts with `Test`, even though in this case it is a production class being imported in the test module namespace.
 
-  This behavior can now be prevented by setting the new :confval:`collect_imported_tests` configuration option to ``false``, which will make pytest collect classes/functions from test files **only** if they are defined in that file.
+  This behavior can now be prevented by setting the new :confval:`collect_imported_tests` configuration option to ``false``, which will make pytest collect classes/functions from test files only if they are defined in that file.
 
   -- by :user:`FreerGit`
 
@@ -781,14 +781,14 @@ Improvements in existing functionality
 
       Example:
 
-      **Previous Output:**
+      Previous Output:
 
       .. code-block:: console
 
           >>> pytest.approx(42, abs=1)
           42 ± 1.0e+00
 
-      **Current Output:**
+      Current Output:
 
       .. code-block:: console
 
@@ -1645,7 +1645,7 @@ pytest 8.1.0 (YANKED)
 
 .. note::
 
-       This release has been **yanked**: it broke some plugins without the proper warning period, due to
+       This release has been yanked: it broke some plugins without the proper warning period, due to
        some warnings not showing up as expected.
 
        See `#12069 <https://github.com/pytest-dev/pytest/issues/12069>`__.
@@ -1744,13 +1744,13 @@ Breaking Changes
 Old Deprecations Are Now Errors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- `#7363 <https://github.com/pytest-dev/pytest/issues/7363>`_: **PytestRemovedIn8Warning deprecation warnings are now errors by default.**
+- `#7363 <https://github.com/pytest-dev/pytest/issues/7363>`_: PytestRemovedIn8Warning deprecation warnings are now errors by default.
 
   Following our plan to remove deprecated features with as little disruption as
   possible, all warnings of type ``PytestRemovedIn8Warning`` now generate errors
   instead of warning messages by default.
 
-  **The affected features will be effectively removed in pytest 8.1**, so please consult the
+  The affected features will be effectively removed in pytest 8.1, so please consult the
   :ref:`deprecations` section in the docs for directions on how to update existing code.
 
   In the pytest ``8.0.X`` series, it is possible to change the errors back into warnings as a
@@ -1764,7 +1764,7 @@ Old Deprecations Are Now Errors
 
   But this will stop working when pytest ``8.1`` is released.
 
-  **If you have concerns** about the removal of a specific feature, please add a
+  If you have concerns about the removal of a specific feature, please add a
   comment to :issue:`7363`.
 
 
@@ -2796,7 +2796,7 @@ Bug Fixes
 pytest 7.0.0 (2022-02-03)
 =========================
 
-(**Please see the full set of changes for this release also in the 7.0.0rc1 notes below**)
+(Please see the full set of changes for this release also in the 7.0.0rc1 notes below)
 
 Deprecations
 ------------
@@ -2888,13 +2888,13 @@ Breaking Changes
   See :ref:`instance-collector-deprecation` for details.
 
 
-- `#9308 <https://github.com/pytest-dev/pytest/issues/9308>`_: **PytestRemovedIn7Warning deprecation warnings are now errors by default.**
+- `#9308 <https://github.com/pytest-dev/pytest/issues/9308>`_: PytestRemovedIn7Warning deprecation warnings are now errors by default.
 
   Following our plan to remove deprecated features with as little disruption as
   possible, all warnings of type ``PytestRemovedIn7Warning`` now generate errors
   instead of warning messages by default.
 
-  **The affected features will be effectively removed in pytest 7.1**, so please consult the
+  The affected features will be effectively removed in pytest 7.1, so please consult the
   :ref:`deprecations` section in the docs for directions on how to update existing code.
 
   In the pytest ``7.0.X`` series, it is possible to change the errors back into warnings as a
@@ -2908,7 +2908,7 @@ Breaking Changes
 
   But this will stop working when pytest ``7.1`` is released.
 
-  **If you have concerns** about the removal of a specific feature, please add a
+  If you have concerns about the removal of a specific feature, please add a
   comment to :issue:`9308`.
 
 
@@ -2922,7 +2922,7 @@ Deprecations
 
   .. note::
       The name of the :class:`~_pytest.nodes.Node` arguments and attributes (the
-      new attribute being ``path``) is **the opposite** of the situation for hooks
+      new attribute being ``path``) is the opposite of the situation for hooks
       (the old argument being ``path``).
 
       This is an unfortunate artifact due to historical reasons, which should be
@@ -3055,7 +3055,7 @@ Features
 
   .. note::
       The name of the :class:`~_pytest.nodes.Node` arguments and attributes (the
-      new attribute being ``path``) is **the opposite** of the situation for hooks
+      new attribute being ``path``) is the opposite of the situation for hooks
       (the old argument being ``path``).
 
       This is an unfortunate artifact due to historical reasons, which should be
@@ -3068,7 +3068,7 @@ Features
 
   .. note::
       The name of the :class:`~_pytest.nodes.Node` arguments and attributes (the
-      new attribute being ``path``) is **the opposite** of the situation for hooks
+      new attribute being ``path``) is the opposite of the situation for hooks
       (the old argument being ``path``).
 
       This is an unfortunate artifact due to historical reasons, which should be
@@ -3825,18 +3825,18 @@ Bug Fixes
 pytest 6.0.0 (2020-07-28)
 =========================
 
-(**Please see the full set of changes for this release also in the 6.0.0rc1 notes below**)
+(Please see the full set of changes for this release also in the 6.0.0rc1 notes below)
 
 Breaking Changes
 ----------------
 
-- :issue:`5584`: **PytestDeprecationWarning are now errors by default.**
+- :issue:`5584`: PytestDeprecationWarning are now errors by default.
 
   Following our plan to remove deprecated features with as little disruption as
   possible, all warnings of type ``PytestDeprecationWarning`` now generate errors
   instead of warning messages.
 
-  **The affected features will be effectively removed in pytest 6.1**, so please consult the
+  The affected features will be effectively removed in pytest 6.1, so please consult the
   :std:doc:`deprecations` section in the docs for directions on how to update existing code.
 
   In the pytest ``6.0.X`` series, it is possible to change the errors back into warnings as a
@@ -3850,7 +3850,7 @@ Breaking Changes
 
   But this will stop working when pytest ``6.1`` is released.
 
-  **If you have concerns** about the removal of a specific feature, please add a
+  If you have concerns about the removal of a specific feature, please add a
   comment to :issue:`5584`.
 
 
@@ -5256,13 +5256,13 @@ Removals
   :issue:`4009`.
 
 
-- :issue:`5402`: **PytestDeprecationWarning are now errors by default.**
+- :issue:`5402`: PytestDeprecationWarning are now errors by default.
 
   Following our plan to remove deprecated features with as little disruption as
   possible, all warnings of type ``PytestDeprecationWarning`` now generate errors
   instead of warning messages.
 
-  **The affected features will be effectively removed in pytest 5.1**, so please consult the
+  The affected features will be effectively removed in pytest 5.1, so please consult the
   :std:doc:`deprecations` section in the docs for directions on how to update existing code.
 
   In the pytest ``5.0.X`` series, it is possible to change the errors back into warnings as a stop
@@ -5276,7 +5276,7 @@ Removals
 
   But this will stop working when pytest ``5.1`` is released.
 
-  **If you have concerns** about the removal of a specific feature, please add a
+  If you have concerns about the removal of a specific feature, please add a
   comment to :issue:`5402`.
 
 
@@ -5321,7 +5321,7 @@ Features
 - :issue:`3457`: New :hook:`pytest_assertion_pass`
   hook, called with context information when an assertion *passes*.
 
-  This hook is still **experimental** so use it with caution.
+  This hook is still experimental so use it with caution.
 
 
 - :issue:`5440`: The :mod:`faulthandler` standard library
@@ -5341,7 +5341,7 @@ Features
 
   The team doesn't expect this change to break test suites or plugins in general, except in esoteric/specific scenarios.
 
-  **pytest-xdist** users should upgrade to ``1.29.0`` or later, as ``pytest-xdist`` required a compatibility fix because of this change.
+  pytest-xdist users should upgrade to ``1.29.0`` or later, as ``pytest-xdist`` required a compatibility fix because of this change.
 
 
 
@@ -5640,7 +5640,7 @@ pytest 4.6.0 (2019-05-31)
 Important
 ---------
 
-The ``4.6.X`` series will be the last series to support **Python 2 and Python 3.4**.
+The ``4.6.X`` series will be the last series to support Python 2 and Python 3.4.
 
 For more details, see our `Python 2.7 and 3.4 support plan
 <https://docs.pytest.org/en/7.0.x/py27-py34-deprecation.html>`_.
@@ -6035,7 +6035,7 @@ Trivial/Internal Changes
 - :issue:`4913`: Fix pytest tests invocation with custom ``PYTHONPATH``.
 
 
-- :issue:`4965`: New ``pytest_report_to_serializable`` and ``pytest_report_from_serializable`` **experimental** hooks.
+- :issue:`4965`: New ``pytest_report_to_serializable`` and ``pytest_report_from_serializable`` experimental hooks.
 
   These hooks will be used by ``pytest-xdist``, ``pytest-subtests``, and the replacement for
   resultlog to serialize and customize reports.
@@ -6316,10 +6316,10 @@ Removals
   See our :ref:`docs <passing command-line string to pytest.main deprecated>` on information on how to update your code.
 
 
-- :issue:`3086`: ``[pytest]`` section in **setup.cfg** files is no longer supported, use ``[tool:pytest]`` instead. ``setup.cfg`` files
+- :issue:`3086`: ``[pytest]`` section in setup.cfg files is no longer supported, use ``[tool:pytest]`` instead. ``setup.cfg`` files
   are meant for use with ``distutils``, and a section named ``pytest`` has notoriously been a source of conflicts and bugs.
 
-  Note that for **pytest.ini** and **tox.ini** files the section remains ``[pytest]``.
+  Note that for pytest.ini and tox.ini files the section remains ``[pytest]``.
 
 
 - :issue:`3616`: Removed the deprecated compat properties for ``node.Class/Function/Module`` - use ``pytest.Class/Function/Module`` now.
@@ -6576,13 +6576,13 @@ pytest 4.0.0 (2018-11-13)
 Removals
 --------
 
-- :issue:`3737`: **RemovedInPytest4Warnings are now errors by default.**
+- :issue:`3737`: RemovedInPytest4Warnings are now errors by default.
 
   Following our plan to remove deprecated features with as little disruption as
   possible, all warnings of type ``RemovedInPytest4Warnings`` now generate errors
   instead of warning messages.
 
-  **The affected features will be effectively removed in pytest 4.1**, so please consult the
+  The affected features will be effectively removed in pytest 4.1, so please consult the
   :std:doc:`deprecations` section in the docs for directions on how to update existing code.
 
   In the pytest ``4.0.X`` series, it is possible to change the errors back into warnings as a stop
@@ -6596,7 +6596,7 @@ Removals
 
   But this will stop working when pytest ``4.1`` is released.
 
-  **If you have concerns** about the removal of a specific feature, please add a
+  If you have concerns about the removal of a specific feature, please add a
   comment to :issue:`4348`.
 
 
@@ -7075,7 +7075,7 @@ Deprecations and Removals
 - :issue:`3936`: ``@pytest.mark.filterwarnings`` second parameter is no longer regex-escaped,
   making it possible to actually use regular expressions to check the warning message.
 
-  **Note**: regex-escaping the match string was an implementation oversight that might break test suites which depend
+  Note: regex-escaping the match string was an implementation oversight that might break test suites which depend
   on the old behavior.
 
 
@@ -7297,7 +7297,7 @@ Deprecations and Removals
 Features
 --------
 
-- :issue:`2283`: New ``package`` fixture scope: fixtures are finalized when the last test of a *package* finishes. This feature is considered **experimental**, so use it sparingly.
+- :issue:`2283`: New ``package`` fixture scope: fixtures are finalized when the last test of a *package* finishes. This feature is considered experimental, so use it sparingly.
 
 
 - :issue:`3576`: ``Node.add_marker`` now supports an ``append=True/False`` parameter to determine whether the mark comes last (default) or first.
@@ -7492,7 +7492,7 @@ Features
 - Revamp the internals of the ``pytest.mark`` implementation with correct per
   node handling which fixes a number of long standing bugs caused by the old
   design. This introduces new ``Node.iter_markers(name)`` and
-  ``Node.get_closest_marker(name)`` APIs. Users are **strongly encouraged** to
+  ``Node.get_closest_marker(name)`` APIs. Users are strongly encouraged to
   read the :ref:`reasons for the revamp in the docs <marker-revamp>`,
   or jump over to details about :ref:`updating existing code to use the new APIs
   <update marker code>`.
@@ -7836,7 +7836,7 @@ Features
   to change the default to ``xfail`` in future releases as this is considered
   less error prone. (:issue:`2527`)
 
-- **Incompatible change**: after community feedback the :doc:`logging <how-to/logging>` functionality has
+- Incompatible change: after community feedback the :doc:`logging <how-to/logging>` functionality has
   undergone some changes. Please consult the :ref:`logging documentation <log_changes_3_4>`
   for details. (:issue:`3013`)
 
@@ -7880,7 +7880,7 @@ Bug Fixes
 
 - Fix progress percentage reported when tests fail during teardown. (:issue:`3088`)
 
-- **Incompatible change**: ``-o/--override`` option no longer eats all the
+- Incompatible change: ``-o/--override`` option no longer eats all the
   remaining options, which can lead to surprising behavior: for example,
   ``pytest -o foo=1 /path/to/test.py`` would fail because ``/path/to/test.py``
   would be considered as part of the ``-o`` command-line argument. One
@@ -7936,7 +7936,7 @@ Bug Fixes
 - pytester: ignore files used to obtain current user metadata in the fd leak
   detector. (:issue:`2784`)
 
-- Fix **memory leak** where objects returned by fixtures were never destructed
+- Fix memory leak where objects returned by fixtures were never destructed
   by the garbage collector. (:issue:`2981`)
 
 - Fix conversion of pyargs to filename to not convert symlinks on Python 2. (:issue:`2985`)
@@ -8003,7 +8003,7 @@ pytest 3.3.0 (2017-11-23)
 Deprecations and Removals
 -------------------------
 
-- pytest no longer supports Python **2.6** and **3.3**. Those Python versions
+- pytest no longer supports Python 2.6 and 3.3. Those Python versions
   are EOL for some time now and incur maintenance and compatibility costs on
   the pytest core team, and following up with the rest of the community we
   decided that they will no longer be supported starting on this version. Users
@@ -8890,7 +8890,7 @@ Bug Fixes
 3.0.0 (2016-08-18)
 ==================
 
-**Incompatible changes**
+Incompatible changes
 
 
 A number of incompatible changes were made in this release, with the intent of removing features deprecated for a long
@@ -8949,7 +8949,7 @@ time or change existing behaviors in order to make them less surprising/more use
   and is just a synonym for ``--maxfail=1``.
 
 
-**New Features**
+New Features
 
 * Support nose-style ``__test__`` attribute on methods of classes,
   including unittest-style Classes. If set to ``False``, the test will not be
@@ -9036,7 +9036,7 @@ time or change existing behaviors in order to make them less surprising/more use
   Thanks to :user:`anntzer` for the PR.
 
 
-**Changes**
+Changes
 
 * Plugins now benefit from assertion rewriting.  Thanks
   :user:`sober7`, :user:`nicoddemus` and :user:`flub` for the PR.
@@ -9171,7 +9171,7 @@ time or change existing behaviors in order to make them less surprising/more use
   EuroPython2016 sprint.
 
 
-**Bug Fixes**
+Bug Fixes
 
 * Parametrize now correctly handles duplicated test ids.
 
@@ -9212,7 +9212,7 @@ time or change existing behaviors in order to make them less surprising/more use
 2.9.2 (2016-05-31)
 ==================
 
-**Bug Fixes**
+Bug Fixes
 
 * fix :issue:`510`: skip tests where one parameterize dimension was empty
   thanks Alex Stapleton for the Report and :user:`RonnyPfannschmidt` for the PR
@@ -9243,7 +9243,7 @@ time or change existing behaviors in order to make them less surprising/more use
 2.9.1 (2016-03-17)
 ==================
 
-**Bug Fixes**
+Bug Fixes
 
 * Improve error message when a plugin fails to load.
   Thanks :user:`nicoddemus` for the PR.
@@ -9271,7 +9271,7 @@ time or change existing behaviors in order to make them less surprising/more use
 2.9.0 (2016-02-29)
 ==================
 
-**New Features**
+New Features
 
 * New ``pytest.mark.skip`` mark, which unconditionally skips marked tests.
   Thanks :user:`MichaelAquilina` for the complete PR (:pr:`1040`).
@@ -9302,9 +9302,9 @@ time or change existing behaviors in order to make them less surprising/more use
   Fixes a pytest internal error for dynamically generated code (fixtures and tests)
   where source lines are fake by intention.
 
-**Changes**
+Changes
 
-* **Important**: `py.code <https://pylib.readthedocs.io/en/stable/code.html>`_ has been
+* Important: `py.code <https://pylib.readthedocs.io/en/stable/code.html>`_ has been
   merged into the ``pytest`` repository as ``pytest._code``. This decision
   was made because ``py.code`` had very few uses outside ``pytest`` and the
   fact that it was in a different repository made it difficult to fix bugs on
@@ -9313,8 +9313,8 @@ time or change existing behaviors in order to make them less surprising/more use
   This change shouldn't affect users, but it is useful to let users aware
   if they encounter any strange behavior.
 
-  Keep in mind that the code for ``pytest._code`` is **private** and
-  **experimental**, so you definitely should not import it explicitly!
+  Keep in mind that the code for ``pytest._code`` is private and
+  experimental, so you definitely should not import it explicitly!
 
   Please note that the original ``py.code`` is still available in
   `pylib <https://pylib.readthedocs.io>`_.
@@ -9340,7 +9340,7 @@ time or change existing behaviors in order to make them less surprising/more use
   This avoids cluttering the output when using ``--color=yes`` to obtain
   colors in CI integrations systems (:issue:`1397`).
 
-**Bug Fixes**
+Bug Fixes
 
 * The ``-s`` and ``-c`` options should now work under ``xdist``;
   ``Config.fromdictargs`` now represents its input much more faithfully.
@@ -11099,7 +11099,7 @@ Bug fixes:
 1.3.2 (2010-07-08)
 ==================
 
-**New features**
+New features
 
 - fix issue103:  introduce py.test.raises as context manager, examples::
 
@@ -11134,7 +11134,7 @@ Bug fixes:
 - introduce '--junitprefix=STR' option to prepend a prefix
   to all reports in the junitxml file.
 
-**Bug fixes**
+Bug fixes
 
 - make tests and the ``pytest_recwarn`` plugin in particular fully compatible
   to Python2.7 (if you use the ``recwarn`` funcarg warnings will be enabled so that
@@ -11172,7 +11172,7 @@ Bug fixes:
 1.3.1 (2010-05-25)
 ==================
 
-**New features**
+New features
 
 - issue91: introduce new py.test.xfail(reason) helper
   to imperatively mark a test as expected to fail. Can
@@ -11210,7 +11210,7 @@ Bug fixes:
   course requires that your application and tests are properly teared
   down and don't have global state.
 
-**Bug Fixes**
+Bug Fixes
 
 - improved traceback presentation:
   - improved and unified reporting for "--tb=short" option

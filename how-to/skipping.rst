@@ -7,13 +7,13 @@
 
 你可以标记在某些平台上无法运行的测试函数，或者你预期会失败的测试函数，以便 pytest 可以相应地处理它们，并在保持测试套件*绿色*的同时呈现测试会话摘要。
 
-**skip** 意味着你期望你的测试仅在满足某些条件时通过，
+skip 意味着你期望你的测试仅在满足某些条件时通过，
 否则 pytest 应该完全跳过运行该测试。常见示例包括在非 Windows 平台上跳过仅 Windows 的测试，或跳过依赖于当前不可用外部资源（例如数据库）的测试。
 
-**xfail** 意味着你预期测试由于某种原因会失败。
+xfail 意味着你预期测试由于某种原因会失败。
 一个常见的例子是针对尚未实现的功能或尚未修复的错误的测试。
 当尽管预期失败（用 ``pytest.mark.xfail`` 标记）但测试通过时，
-它是一个 **xpass**，将在测试摘要中报告。
+它是一个 xpass，将在测试摘要中报告。
 
 ``pytest`` 单独计数并列出 *skip* 和 *xfail* 测试。默认情况下不显示有关跳过/预期失败测试的详细信息，以避免
 使输出混乱。你可以使用 :option:`-r` 选项查看与测试进度中显示的"短"字母对应的详细信息：
@@ -64,7 +64,7 @@
         pytest.skip("skipping windows-only tests", allow_module_level=True)
 
 
-**参考**: :ref:`pytest.mark.skip ref`
+参考: :ref:`pytest.mark.skip ref`
 
 ``skipif``
 ~~~~~~~~~~
@@ -117,7 +117,7 @@
 或者，你可以使用 :ref:`条件字符串 <string conditions>` 而不是布尔值，但它们不能很容易地在模块之间共享，
 因此主要为了向后兼容性而支持它们。
 
-**参考**: :ref:`pytest.mark.skipif ref`
+参考: :ref:`pytest.mark.skipif ref`
 
 
 跳过类的所有测试函数或模块
@@ -233,7 +233,7 @@ passing" (``XPASS``) 部分。
 
 这将使 ``test_function`` ``XFAIL``。请注意，与标记不同，:func:`pytest.xfail` 调用之后不会执行其他代码。这是因为它内部通过引发已知异常来实现。
 
-**参考**: :ref:`pytest.mark.xfail ref`
+参考: :ref:`pytest.mark.xfail ref`
 
 
 ``condition`` 参数

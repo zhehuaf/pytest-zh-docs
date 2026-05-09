@@ -5,7 +5,7 @@
 pytest-2.3: fixture/funcarg 演变的原因
 =============================================================
 
-**目标读者**：阅读本文档需要了解 Python 测试、xUnit 设置方法以及（之前的）基本 pytest funcarg 机制的基本知识，请参阅 :ref:`historical funcargs and pytest.funcargs`。如果你是 pytest 的新手，你可以直接忽略本节并阅读其他部分。
+目标读者：阅读本文档需要了解 Python 测试、xUnit 设置方法以及（之前的）基本 pytest funcarg 机制的基本知识，请参阅 :ref:`historical funcargs and pytest.funcargs`。如果你是 pytest 的新手，你可以直接忽略本节并阅读其他部分。
 
 先前 ``pytest_funcarg__`` 机制的缺点
 --------------------------------------------------------------
@@ -154,7 +154,7 @@ Funcargs/fixture 发现在收集时进行
 结论和兼容性说明
 ---------------------------------------------------------
 
-**funcargs** 最初在 pytest-2.0 中引入。在 pytest-2.3 中，该机制被扩展和精炼，现在被描述为 fixtures：
+funcargs 最初在 pytest-2.0 中引入。在 pytest-2.3 中，该机制被扩展和精炼，现在被描述为 fixtures：
 
 * 以前 funcarg 工厂使用特殊的 ``pytest_funcarg__NAME`` 前缀指定，而不是使用 ``@pytest.fixture`` 装饰器。
 

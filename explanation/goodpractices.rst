@@ -92,7 +92,7 @@ Python 测试发现约定
 
 .. _src-layout:
 
-一般来说，但特别是如果你使用默认导入模式 ``prepend``，**强烈**\建议使用 ``src`` 布局。
+一般来说，但特别是如果你使用默认导入模式 ``prepend``，强烈\建议使用 ``src`` 布局。
 在这里，你的应用程序根包位于根的子目录中，即 ``src/mypkg/`` 而不是 ``mypkg``。
 
 这种布局可以防止很多常见的陷阱，有很多好处，这在 Ionel Cristian Mărieș 的这篇优秀 `blog post`_ 中有更好的解释。
@@ -193,7 +193,7 @@ Python 测试发现约定
 
 由于没有包可以派生完整包名称，``pytest`` 会将你的测试文件作为*顶级*模块导入。第一个示例（:ref:`src layout <src-layout>`）中的测试文件将通过将 ``tests/`` 添加到 ``sys.path`` 而作为 ``test_app`` 和 ``test_view`` 顶级模块导入。
 
-与导入模式 ``importlib`` 相比，这导致一个缺点：你的测试文件必须具有**唯一名称**。
+与导入模式 ``importlib`` 相比，这导致一个缺点：你的测试文件必须具有唯一名称。
 
 如果你需要具有相同名称的测试模块，作为一种解决方法，你可以将 ``__init__.py`` 文件添加到你的 ``tests`` 目录和子目录，将它们更改为包：
 
@@ -230,7 +230,7 @@ tox
 不要通过 setuptools 运行
 -------------------------
 
-**不推荐使用** setuptools 集成，即你不应使用 ``python setup.py test`` 或 ``pytest-runner``，并且它们将来可能会停止工作。
+不推荐使用 setuptools 集成，即你不应使用 ``python setup.py test`` 或 ``pytest-runner``，并且它们将来可能会停止工作。
 
 这是不推荐的，因为它依赖于 setuptools 的已弃用功能，并依赖于破坏 pip 中安全机制的功能。例如 'setup_requires' 和 'tests_require' 绕过 ``pip --require-hashes``。
 有关更多信息和迁移说明，请参见 `pytest-runner notice <https://github.com/pytest-dev/pytest-runner#deprecation-notice>`_。

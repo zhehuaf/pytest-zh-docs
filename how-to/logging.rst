@@ -200,7 +200,7 @@ caplog fixture
 * :confval:`log_file_format`
 * :confval:`log_file_date_format`
 
-你可以调用 ``set_log_path()`` 来动态自定义 log_file 路径。此功能被认为是**实验性的**。请注意，``set_log_path()`` 遵循 :confval:`log_file_mode` 选项。
+你可以调用 ``set_log_path()`` 来动态自定义 log_file 路径。此功能被认为是实验性的。请注意，``set_log_path()`` 遵循 :confval:`log_file_mode` 选项。
 
 .. _log_colors:
 
@@ -222,7 +222,7 @@ caplog fixture
         logging_plugin.log_cli_handler.formatter.add_color_level(logging.SPAM, "blue")
 .. warning::
 
-    此功能及其 API 被认为是**实验性的**，可能在版本之间更改，而不需要弃用通知。
+    此功能及其 API 被认为是实验性的，可能在版本之间更改，而不需要弃用通知。
 .. _log_release_notes:
 
 发布说明
@@ -250,7 +250,7 @@ caplog fixture
 pytest 3.4 中的不兼容更改
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-此功能在 ``3.3`` 中引入，在 ``3.4`` 中根据社区反馈进行了一些**不兼容的更改**：
+此功能在 ``3.3`` 中引入，在 ``3.4`` 中根据社区反馈进行了一些不兼容的更改：
 
 * 除非 :confval:`log_level` 配置或 :option:`--log-level` 命令行选项明确要求，否则不再更改日志级别。这允许用户自己配置日志记录器对象。设置 :confval:`log_level` 将全局设置捕获的级别，因此如果特定测试需要比此更低的级别，请使用 ``caplog.set_level()`` 功能，否则该测试将容易失败。
 * :ref:`实时日志 <live_logs>` 现在默认禁用，可以通过将 :confval:`log_cli` 配置选项设置为 ``true`` 来启用。启用后，详细程度会增加，以便可以看到每个测试的日志记录。

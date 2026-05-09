@@ -408,7 +408,7 @@ DeprecationWarning 和 PendingDeprecationWarning
         with pytest.warns((RuntimeWarning, UserWarning)):
             ...
 
-- 确保**只**发出某些警告：
+- 确保只发出某些警告：
 
 .. code-block:: python
 
@@ -418,7 +418,7 @@ DeprecationWarning 和 PendingDeprecationWarning
         user_warning = recwarn.pop(UserWarning)
         assert issubclass(user_warning.category, UserWarning)
 
--  确保**没有**发出警告：
+-  确保没有发出警告：
 
 .. code-block:: python
 

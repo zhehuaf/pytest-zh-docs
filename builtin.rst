@@ -193,7 +193,7 @@ Pytest API 和内建 fixtures
 
         .. warning::
 
-            Currently this fixture **does not work** with the
+            Currently this fixture does not work with the
             `pytest-xdist <https://github.com/pytest-dev/pytest-xdist>`__ plugin. See
             :issue:`7767` for details.
 

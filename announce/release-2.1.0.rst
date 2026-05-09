@@ -7,7 +7,7 @@ the improved extensive docs (now also as PDF!) with tested examples here:
 
      http://pytest.org/
 
-The single biggest news about this release are **perfected assertions**
+The single biggest news about this release are perfected assertions
 courtesy of Benjamin Peterson.  You can now safely use ``assert``
 statements in test modules without having to worry about side effects
 or python optimization ("-OO") options.  This is achieved by rewriting

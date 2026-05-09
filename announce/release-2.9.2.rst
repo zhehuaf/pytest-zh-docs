@@ -37,7 +37,7 @@ The py.test Development Team
 2.9.2 (compared to 2.9.1)
 ---------------------------
 
-**Bug Fixes**
+Bug Fixes
 
 * fix :issue:`510`: skip tests where one parameterize dimension was empty
   thanks Alex Stapleton for the Report and :user:`RonnyPfannschmidt` for the PR

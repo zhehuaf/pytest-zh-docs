@@ -17,7 +17,7 @@
 
 对于清理（通常不需要），:option:`--cache-clear` 选项允许在测试运行之前删除所有跨会话缓存内容。
 
-其他插件可以访问 `config.cache`_ 对象来在 ``pytest`` 调用之间设置/获取 **json 可编码** 值。
+其他插件可以访问 `config.cache`_ 对象来在 ``pytest`` 调用之间设置/获取 json 可编码 值。
 
 .. note::
 

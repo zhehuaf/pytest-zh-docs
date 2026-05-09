@@ -57,7 +57,7 @@ pytest 将自动在 ``test_*.py`` 或 ``*_test.py`` 文件中收集 ``unittest.T
 * :ref:`标记 <mark>`: :ref:`skip <skip>`、:ref:`skipif <skipif>`、:ref:`xfail <xfail>`；
 * :ref:`自动使用 fixtures <mixing-fixtures>`；
 
-以下 pytest 功能**不起作用**，可能永远不会起作用，因为设计哲学不同：
+以下 pytest 功能不起作用，可能永远不会起作用，因为设计哲学不同：
 
 * :ref:`Fixtures <fixture>`（除了 ``autouse`` fixtures，参见 :ref:`下方 <mixing-fixtures>`）；
 * :ref:`参数化 <parametrize>`；

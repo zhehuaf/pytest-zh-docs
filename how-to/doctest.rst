@@ -74,7 +74,7 @@
 编码
 --------
 
-默认编码是 **UTF-8**，但你可以使用 :confval:`doctest_encoding` 配置选项来指定这些 doctest 文件将使用的编码：
+默认编码是 UTF-8，但你可以使用 :confval:`doctest_encoding` 配置选项来指定这些 doctest 文件将使用的编码：
 
 .. tab:: toml
 

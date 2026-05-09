@@ -34,7 +34,7 @@ The py.test Development Team
 2.9.1 (compared to 2.9.0)
 -------------------------
 
-**Bug Fixes**
+Bug Fixes
 
 * Improve error message when a plugin fails to load.
   Thanks :user:`nicoddemus` for the PR.

@@ -42,7 +42,7 @@ The py.test Development Team
 2.9.0 (compared to 2.8.7)
 -------------------------
 
-**New Features**
+New Features
 
 * New ``pytest.mark.skip`` mark, which unconditionally skips marked tests.
   Thanks :user:`MichaelAquilina` for the complete PR (:pr:`1040`).
@@ -73,9 +73,9 @@ The py.test Development Team
   pytest internal error for dynamically generated code (fixtures and tests)
   where source lines are fake by intention
 
-**Changes**
+Changes
 
-* **Important**: `py.code <https://pylib.readthedocs.io/en/stable/code.html>`_ has been
+* Important: `py.code <https://pylib.readthedocs.io/en/stable/code.html>`_ has been
   merged into the ``pytest`` repository as ``pytest._code``. This decision
   was made because ``py.code`` had very few uses outside ``pytest`` and the
   fact that it was in a different repository made it difficult to fix bugs on
@@ -84,8 +84,8 @@ The py.test Development Team
   This change shouldn't affect users, but it is useful to let users aware
   if they encounter any strange behavior.
 
-  Keep in mind that the code for ``pytest._code`` is **private** and
-  **experimental**, so you definitely should not import it explicitly!
+  Keep in mind that the code for ``pytest._code`` is private and
+  experimental, so you definitely should not import it explicitly!
 
   Please note that the original ``py.code`` is still available in
   `pylib <https://pylib.readthedocs.io/en/stable/>`_.
@@ -111,7 +111,7 @@ The py.test Development Team
   This avoids cluttering the output when using ``--color=yes`` to obtain
   colors in CI integrations systems (:issue:`1397`).
 
-**Bug Fixes**
+Bug Fixes
 
 * The ``-s`` and ``-c`` options should now work under ``xdist``;
   ``Config.fromdictargs`` now represents its input much more faithfully.

@@ -1,8 +1,8 @@
 .. _features:
 
-.. sidebar:: **即将举办的培训和活动**
+.. sidebar:: 即将举办的培训和活动
 
-    - `Python 专业测试 <https://python-academy.com/courses/python_course_testing.html>`_, 通过 `Python Academy <https://www.python-academy.com/>`_ (为期 3 天的深入培训), **2027年3月9日 -- 11日**, 莱比锡 (德国) / 远程
+    - `Python 专业测试 <https://python-academy.com/courses/python_course_testing.html>`_, 通过 `Python Academy <https://www.python-academy.com/>`_ (为期 3 天的深入培训), 2027年3月9日 -- 11日, 莱比锡 (德国) / 远程
 
     另请参见 :doc:`以往的演讲和博客文章 <talks>`
 
@@ -56,7 +56,7 @@ pytest: 帮助你编写更好的程序
 ``pytest`` 框架使编写小型、可读的测试变得容易，并且可以扩展以支持应用程序和库的复杂功能测试。
 
 
-**PyPI 包名称**: :pypi:`pytest`
+PyPI 包名称: :pypi:`pytest`
 
 快速示例
 ---------------

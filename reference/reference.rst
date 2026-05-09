@@ -62,7 +62,7 @@ pytest.approx
 pytest.fail
 ~~~~~~~~~~~
 
-**Tutorial**: :ref:`skipping`
+Tutorial: :ref:`skipping`
 
 .. autofunction:: pytest.fail(reason, [pytrace=True])
 
@@ -107,7 +107,7 @@ pytest.exit
 pytest.main
 ~~~~~~~~~~~
 
-**Tutorial**: :ref:`pytest.main-usage`
+Tutorial: :ref:`pytest.main-usage`
 
 .. autofunction:: pytest.main
 
@@ -119,7 +119,7 @@ pytest.param
 pytest.raises
 ~~~~~~~~~~~~~
 
-**Tutorial**: :ref:`assertraises`
+Tutorial: :ref:`assertraises`
 
 .. autofunction:: pytest.raises(expected_exception: Exception [, *, match])
     :with: excinfo
@@ -127,7 +127,7 @@ pytest.raises
 pytest.deprecated_call
 ~~~~~~~~~~~~~~~~~~~~~~
 
-**Tutorial**: :ref:`ensuring_function_triggers`
+Tutorial: :ref:`ensuring_function_triggers`
 
 .. autofunction:: pytest.deprecated_call([match])
     :with:
@@ -135,14 +135,14 @@ pytest.deprecated_call
 pytest.register_assert_rewrite
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Tutorial**: :ref:`assertion-rewriting`
+Tutorial: :ref:`assertion-rewriting`
 
 .. autofunction:: pytest.register_assert_rewrite
 
 pytest.warns
 ~~~~~~~~~~~~
 
-**Tutorial**: :ref:`assertwarnings`
+Tutorial: :ref:`assertwarnings`
 
 .. autofunction:: pytest.warns(expected_warning: Exception, [match])
     :with:
@@ -150,7 +150,7 @@ pytest.warns
 pytest.freeze_includes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Tutorial**: :ref:`freezing-pytest`
+Tutorial: :ref:`freezing-pytest`
 
 .. autofunction:: pytest.freeze_includes
 
@@ -170,7 +170,7 @@ fixtures or plugins.
 pytest.mark.filterwarnings
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Tutorial**: :ref:`filterwarnings`
+Tutorial: :ref:`filterwarnings`
 
 Add warning filters to marked test items.
 
@@ -195,7 +195,7 @@ Add warning filters to marked test items.
 pytest.mark.parametrize
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-**Tutorial**: :ref:`parametrize`
+Tutorial: :ref:`parametrize`
 
 This mark has the same signature as :py:meth:`pytest.Metafunc.parametrize`; see there.
 
@@ -205,7 +205,7 @@ This mark has the same signature as :py:meth:`pytest.Metafunc.parametrize`; see 
 pytest.mark.skip
 ~~~~~~~~~~~~~~~~
 
-**Tutorial**: :ref:`skip`
+Tutorial: :ref:`skip`
 
 Unconditionally skip a test function.
 
@@ -219,7 +219,7 @@ Unconditionally skip a test function.
 pytest.mark.skipif
 ~~~~~~~~~~~~~~~~~~
 
-**Tutorial**: :ref:`skipif`
+Tutorial: :ref:`skipif`
 
 Skip a test function if a condition is ``True``.
 
@@ -235,7 +235,7 @@ Skip a test function if a condition is ``True``.
 pytest.mark.usefixtures
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-**Tutorial**: :ref:`usefixtures`
+Tutorial: :ref:`usefixtures`
 
 Mark a test function as using the given fixture names.
 
@@ -248,7 +248,7 @@ Mark a test function as using the given fixture names.
     When using `usefixtures` in hooks, it can only load fixtures when applied to a test function before test setup
     (for example in the `pytest_collection_modifyitems` hook).
 
-    Also note that this mark has no effect when applied to **fixtures**.
+    Also note that this mark has no effect when applied to fixtures.
 
 
 
@@ -257,7 +257,7 @@ Mark a test function as using the given fixture names.
 pytest.mark.xfail
 ~~~~~~~~~~~~~~~~~~
 
-**Tutorial**: :ref:`xfail`
+Tutorial: :ref:`xfail`
 
 Marks a test function as *expected to fail*.
 
@@ -282,7 +282,7 @@ Marks a test function as *expected to fail*.
           and as ``xpass`` if it passes. In both cases this will not cause the test suite to fail as a whole. This
           is particularly useful to mark *flaky* tests (tests that fail at random) to be tackled later.
         * If ``True``, the function will be shown in the terminal output as ``xfailed`` if it fails, but if it
-          unexpectedly passes then it will **fail** the test suite. This is particularly useful to mark functions
+          unexpectedly passes then it will fail the test suite. This is particularly useful to mark functions
           that are always failing and there should be a clear indication if they unexpectedly start to pass (for example
           a new release of a library fixes a known bug).
 
@@ -325,7 +325,7 @@ When :meth:`Node.iter_markers <_pytest.nodes.Node.iter_markers>` or :meth:`Node.
 Fixtures
 --------
 
-**Tutorial**: :ref:`fixture`
+Tutorial: :ref:`fixture`
 
 Fixtures are requested by test functions or other fixtures by declaring them as argument names.
 
@@ -366,7 +366,7 @@ For more details, consult the full :ref:`fixtures docs <fixture>`.
 capfd
 ~~~~~~
 
-**Tutorial**: :ref:`captures`
+Tutorial: :ref:`captures`
 
 .. autofunction:: _pytest.capture.capfd()
     :no-auto-options:
@@ -377,7 +377,7 @@ capfd
 capfdbinary
 ~~~~~~~~~~~~
 
-**Tutorial**: :ref:`captures`
+Tutorial: :ref:`captures`
 
 .. autofunction:: _pytest.capture.capfdbinary()
     :no-auto-options:
@@ -388,7 +388,7 @@ capfdbinary
 caplog
 ~~~~~~
 
-**Tutorial**: :ref:`logging`
+Tutorial: :ref:`logging`
 
 .. autofunction:: _pytest.logging.caplog()
     :no-auto-options:
@@ -404,7 +404,7 @@ caplog
 capsys
 ~~~~~~
 
-**Tutorial**: :ref:`captures`
+Tutorial: :ref:`captures`
 
 .. autofunction:: _pytest.capture.capsys()
     :no-auto-options:
@@ -417,7 +417,7 @@ capsys
 capteesys
 ~~~~~~~~~
 
-**Tutorial**: :ref:`captures`
+Tutorial: :ref:`captures`
 
 .. autofunction:: _pytest.capture.capteesys()
     :no-auto-options:
@@ -427,7 +427,7 @@ capteesys
 capsysbinary
 ~~~~~~~~~~~~
 
-**Tutorial**: :ref:`captures`
+Tutorial: :ref:`captures`
 
 .. autofunction:: _pytest.capture.capsysbinary()
     :no-auto-options:
@@ -438,7 +438,7 @@ capsysbinary
 config.cache
 ~~~~~~~~~~~~
 
-**Tutorial**: :ref:`cache`
+Tutorial: :ref:`cache`
 
 The ``config.cache`` object allows other plugins and fixtures
 to store and retrieve values across test runs. To access it from fixtures
@@ -458,7 +458,7 @@ Under the hood, the cache plugin uses the simple
 doctest_namespace
 ~~~~~~~~~~~~~~~~~
 
-**Tutorial**: :ref:`doctest`
+Tutorial: :ref:`doctest`
 
 .. autofunction:: _pytest.doctest.doctest_namespace()
 
@@ -468,7 +468,7 @@ doctest_namespace
 monkeypatch
 ~~~~~~~~~~~
 
-**Tutorial**: :ref:`monkeypatching`
+Tutorial: :ref:`monkeypatching`
 
 .. autofunction:: _pytest.monkeypatch.monkeypatch()
     :no-auto-options:
@@ -529,7 +529,7 @@ To use it, include in your topmost ``conftest.py`` file:
 record_property
 ~~~~~~~~~~~~~~~~~~~
 
-**Tutorial**: :ref:`record_property example`
+Tutorial: :ref:`record_property example`
 
 .. autofunction:: _pytest.junitxml.record_property()
 
@@ -539,7 +539,7 @@ record_property
 record_testsuite_property
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Tutorial**: :ref:`record_testsuite_property example`
+Tutorial: :ref:`record_testsuite_property example`
 
 .. autofunction:: _pytest.junitxml.record_testsuite_property()
 
@@ -549,7 +549,7 @@ record_testsuite_property
 recwarn
 ~~~~~~~
 
-**Tutorial**: :ref:`recwarn`
+Tutorial: :ref:`recwarn`
 
 .. autofunction:: _pytest.recwarn.recwarn()
     :no-auto-options:
@@ -564,7 +564,7 @@ recwarn
 request
 ~~~~~~~
 
-**Example**: :ref:`request example`
+Example: :ref:`request example`
 
 The ``request`` fixture is a special fixture providing information of the requesting test function.
 
@@ -579,7 +579,7 @@ subtests
 
 The ``subtests`` fixture enables declaring subtests inside test functions.
 
-**Tutorial**: :ref:`subtests`
+Tutorial: :ref:`subtests`
 
 .. autoclass:: pytest.Subtests()
     :members:
@@ -605,7 +605,7 @@ New code should avoid using :fixture:`testdir` in favor of :fixture:`pytester`.
 tmp_path
 ~~~~~~~~
 
-**Tutorial**: :ref:`tmp_path`
+Tutorial: :ref:`tmp_path`
 
 .. autofunction:: _pytest.tmpdir.tmp_path()
     :no-auto-options:
@@ -616,7 +616,7 @@ tmp_path
 tmp_path_factory
 ~~~~~~~~~~~~~~~~
 
-**Tutorial**: :ref:`tmp_path_factory example`
+Tutorial: :ref:`tmp_path_factory example`
 
 .. _`tmp_path_factory factory api`:
 
@@ -631,7 +631,7 @@ tmp_path_factory
 tmpdir
 ~~~~~~
 
-**Tutorial**: :ref:`tmpdir and tmpdir_factory`
+Tutorial: :ref:`tmpdir and tmpdir_factory`
 
 .. autofunction:: _pytest.legacypath.LegacyTmpdirPlugin.tmpdir()
     :no-auto-options:
@@ -642,7 +642,7 @@ tmpdir
 tmpdir_factory
 ~~~~~~~~~~~~~~
 
-**Tutorial**: :ref:`tmpdir and tmpdir_factory`
+Tutorial: :ref:`tmpdir and tmpdir_factory`
 
 ``tmpdir_factory`` is an instance of :class:`~pytest.TempdirFactory`:
 
@@ -655,7 +655,7 @@ tmpdir_factory
 Hooks
 -----
 
-**Tutorial**: :ref:`writing-plugins`
+Tutorial: :ref:`writing-plugins`
 
 Reference to all hooks which can be implemented by :ref:`conftest.py files <localplugin>` and :ref:`plugins <plugins>`.
 
@@ -1058,7 +1058,7 @@ RaisesExc
 
 RaisesGroup
 ~~~~~~~~~~~
-**Tutorial**: :ref:`assert-matching-exception-groups`
+Tutorial: :ref:`assert-matching-exception-groups`
 
 .. autoclass:: pytest.RaisesGroup()
     :members:
@@ -1112,7 +1112,7 @@ pytest treats some global variables in a special manner when defined in a test m
 
 .. globalvar:: collect_ignore
 
-**Tutorial**: :ref:`customizing-test-collection`
+Tutorial: :ref:`customizing-test-collection`
 
 Can be declared in *conftest.py files* to exclude test directories or modules.
 Needs to be a list of paths (``str``, :class:`pathlib.Path` or any :class:`os.PathLike`).
@@ -1124,7 +1124,7 @@ Needs to be a list of paths (``str``, :class:`pathlib.Path` or any :class:`os.Pa
 
 .. globalvar:: collect_ignore_glob
 
-**Tutorial**: :ref:`customizing-test-collection`
+Tutorial: :ref:`customizing-test-collection`
 
 Can be declared in *conftest.py files* to exclude test directories or modules
 with Unix shell-style wildcards. Needs to be ``list[str]`` where ``str`` can
@@ -1137,9 +1137,9 @@ contain glob patterns.
 
 .. globalvar:: pytest_plugins
 
-**Tutorial**: :ref:`available installable plugins`
+Tutorial: :ref:`available installable plugins`
 
-Can be declared at the **global** level in *test modules* and *conftest.py files* to register additional plugins.
+Can be declared at the global level in *test modules* and *conftest.py files* to register additional plugins.
 Can be either a ``str`` or ``Sequence[str]``.
 
 .. code-block:: python
@@ -1153,9 +1153,9 @@ Can be either a ``str`` or ``Sequence[str]``.
 
 .. globalvar:: pytestmark
 
-**Tutorial**: :ref:`scoped-marking`
+Tutorial: :ref:`scoped-marking`
 
-Can be declared at the **global** level in *test modules* to apply one or more :ref:`marks <marks ref>` to all
+Can be declared at the global level in *test modules* to apply one or more :ref:`marks <marks ref>` to all
 test functions and methods. Can be either a single mark or a list of marks (applied in left-to-right order).
 
 .. code-block:: python
@@ -1187,7 +1187,7 @@ Environment variables that can be used to change pytest's behavior.
 
 .. envvar:: PYTEST_ADDOPTS
 
-   This contains a command-line (parsed by the py:mod:`shlex` module) that will be **prepended** to the command line given
+   This contains a command-line (parsed by the py:mod:`shlex` module) that will be prepended to the command line given
    by the user, see :ref:`adding default options` for more information.
 
 .. envvar:: PYTEST_VERSION
@@ -1365,7 +1365,7 @@ passed multiple times. The expected format is ``name=value``. For example::
    .. versionadded:: 8.4
 
    Setting this to ``false`` will make pytest collect classes/functions from test
-   files **only** if they are defined in that file (as opposed to imported there).
+   files only if they are defined in that file (as opposed to imported there).
 
    .. tab:: toml
 
@@ -1691,7 +1691,7 @@ passed multiple times. The expected format is ``name=value``. For example::
     .. versionadded:: 4.6
 
     If ``junit_logging != "no"``, configures if the captured output should be written
-    to the JUnit XML file for **passing** tests.
+    to the JUnit XML file for passing tests.
 
     .. tab:: toml
 
@@ -2669,7 +2669,7 @@ passed multiple times. The expected format is ``name=value``. For example::
     :type: ``str``
     :default: ``"auto"``
 
-    Set the verbosity level specifically for **passed** subtests.
+    Set the verbosity level specifically for passed subtests.
 
     .. tab:: toml
 
@@ -2685,7 +2685,7 @@ passed multiple times. The expected format is ``name=value``. For example::
             [pytest]
             verbosity_subtests = 1
 
-    A value of ``1`` or higher will show output for **passed** subtests (**failed** subtests are always reported).
+    A value of ``1`` or higher will show output for passed subtests (failed subtests are always reported).
     Passed subtests output can be suppressed with the value ``0``, which overwrites the :option:`-v` command-line option.
 
     A special value of ``"auto"`` can be used to explicitly use the global verbosity level.

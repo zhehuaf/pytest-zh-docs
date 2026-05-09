@@ -51,7 +51,7 @@ Use :meth:`config.getini() <pytest.Config.getini>` to access configuration value
 ``config.inicfg`` was never documented and it should have had a ``_`` prefix from the start.
 Pytest performs caching, transformation and aliasing on configuration options which make direct access to the raw ``config.inicfg`` untenable.
 
-**Reading configuration values:**
+Reading configuration values:
 
 Instead of accessing ``config.inicfg`` directly, use :meth:`config.getini() <pytest.Config.getini>`:
 
@@ -63,7 +63,7 @@ Instead of accessing ``config.inicfg`` directly, use :meth:`config.getini() <pyt
     # Use this instead
     value = config.getini("some_option")
 
-**Setting configuration values:**
+Setting configuration values:
 
 Setting or deleting configuration values after initialization is not supported.
 If you need to override configuration values, use the ``-o`` command line option:
@@ -158,14 +158,14 @@ This deprecation warning will only be issued when:
 
 To fix this warning, convert your legacy namespace packages to native namespace packages:
 
-**Legacy namespace package** (deprecated):
+Legacy namespace package (deprecated):
 
 .. code-block:: python
 
     # mypkg/__init__.py
     __import__("pkg_resources").declare_namespace(__name__)
 
-**Native namespace package** (recommended):
+Native namespace package (recommended):
 
 Simply remove the ``__init__.py`` file entirely.
 Python 3.3+ natively supports namespace packages without ``__init__.py``.
@@ -358,7 +358,7 @@ arguments they only pass on to the superclass.
 
 .. note::
     The name of the :class:`~_pytest.nodes.Node` arguments and attributes (the
-    new attribute being ``path``) is **the opposite** of the situation for
+    new attribute being ``path``) is the opposite of the situation for
     hooks, :ref:`outlined below <legacy-path-hooks-deprecated>` (the old
     argument being ``path``).
 
@@ -484,7 +484,7 @@ The accompanying ``py.path.local`` based paths have been deprecated: plugins whi
 .. note::
     The name of the :class:`~_pytest.nodes.Node` arguments and attributes,
     :ref:`outlined above <node-ctor-fspath-deprecation>` (the new attribute
-    being ``path``) is **the opposite** of the situation for hooks (the old
+    being ``path``) is the opposite of the situation for hooks (the old
     argument being ``path``).
 
     This is an unfortunate artifact due to historical reasons, which should be
@@ -1336,10 +1336,10 @@ Becomes:
 
 ``Node.warn`` now supports two signatures:
 
-* ``node.warn(PytestWarning("some message"))``: is now the **recommended** way to call this function.
+* ``node.warn(PytestWarning("some message"))``: is now the recommended way to call this function.
   The warning instance must be a PytestWarning or subclass.
 
-* ``node.warn("CI", "some message")``: this code/message form has been **removed** and should be converted to the warning instance form above.
+* ``node.warn("CI", "some message")``: this code/message form has been removed and should be converted to the warning instance form above.
 
 .. _record_xml_property deprecated:
 

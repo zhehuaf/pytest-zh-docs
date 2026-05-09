@@ -6,7 +6,7 @@
 
 当使用 bash 作为你的 shell 时，``pytest`` 可以使用 argcomplete
 (https://kislyuk.github.io/argcomplete/) 进行自动补全。
-为此，``argcomplete`` 需要被安装 **并** 启用。
+为此，``argcomplete`` 需要被安装 并 启用。
 
 使用以下命令安装 argcomplete：
 
