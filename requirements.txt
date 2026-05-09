@@ -1,0 +1,8 @@
+sphinx>=9
+furo
+sphinx-inline-tabs
+sphinxcontrib-trio
+pygments-pytest>=2.5.0
+sphinx-removed-in>=0.2.0
+sphinx-issues
+sphinx-sitemap
